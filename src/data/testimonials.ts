@@ -1,0 +1,34 @@
+import type { Testimonial } from "@/types";
+
+export const testimonials: Testimonial[] = [
+  {
+    id: "t-1",
+    name: "Office of the VPAA",
+    role: "OJT Supervisor",
+    company: "Holy Cross of Davao College",
+    content:
+      "They demonstrated exceptional performance while working from home. They consistently showed initiative, responsibility, and professionalism in completing assigned tasks. Despite the remote setup, they maintained good communication, met deadlines, adapted quickly to new challenges, and delivered high-quality work with minimal supervision.",
+  },
+  {
+    id: "t-2",
+    name: "Sir Arvin Lauron",
+    role: "Thesis Adviser",
+    company: "Holy Cross of Davao College",
+    content:
+      "Brought a level of polish to the capstone that went beyond the requirements. The team delivered on time and the system has been used in real-world pilots.",
+  },
+  {
+    id: "t-3",
+    name: "Anonymous Classmate",
+    role: "Classmate & Groupmate",
+    content:
+      "Always the one who actually gets things done in a group. Reliable, sharp, and somehow still manages to keep the team's morale up even during crunch time.",
+  },
+  {
+    id: "t-4",
+    name: "Anonymous",
+    role: "Someone Who Knows You",
+    content:
+      "Honestly kind of scary how fast they pick things up. You give them something new and they just\u2026 figure it out. Then they make it look easy.",
+  },
+];

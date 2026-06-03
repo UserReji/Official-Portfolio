@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300">
+  <rect width="400" height="300" fill="#0a0a23"/>
+  <text x="200" y="135" text-anchor="middle" fill="#00b140" font-family="monospace" font-size="20" font-weight="700">freeCodeCamp</text>
+  <text x="200" y="170" text-anchor="middle" fill="white" font-family="system-ui" font-size="14">Responsive Web Design</text>
+</svg>
