@@ -2,239 +2,257 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { motion } from "framer-motion";
-import {
-  ArrowRight,
-  Download,
-  Mail,
-  Github,
-  Linkedin,
-  MapPin,
-  Sparkles,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { motion, AnimatePresence } from "framer-motion";
+import { ArrowRight, Download, Github, Linkedin } from "lucide-react";
 import { siteConfig } from "@/lib/site";
+import { useEffect, useState, useRef } from "react";
 
-export function HeroSection() {
-  const initials = siteConfig.name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase();
+const fadeUp = (delay = 0) => ({
+  initial: { opacity: 0, y: 28 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.8, delay, ease: [0.22, 1, 0.36, 1] },
+});
+
+const marqueeItems = [
+  "React & Next.js", "UI/UX Design", "IoT Systems", "RESTful APIs",
+  "AI Integration", "Full Stack Dev", "Laravel & PHP", "TypeScript",
+];
+
+// Sequence of lines to type out, one after another
+const LINES = [
+  { text: "Hi, I'm Robert John.", pause: 1200 },
+  { text: "Welcome to my portfolio.", pause: 1000 },
+  { text: "Feel free to roam around.", pause: 900 },
+  { text: "Let's build something great.", pause: 99999 }, // stays
+];
+
+const CHAR_DELAY = 45;  // ms per character typed
+const DELETE_DELAY = 22; // ms per character deleted
+
+function TypedHeading() {
+  const [lineIndex, setLineIndex] = useState(0);
+  const [displayed, setDisplayed] = useState("");
+  const [phase, setPhase] = useState<"typing" | "pausing" | "deleting">("typing");
+  const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    const line = LINES[lineIndex];
+    const isLast = lineIndex === LINES.length - 1;
+
+    if (phase === "typing") {
+      if (displayed.length < line.text.length) {
+        timeout.current = setTimeout(() => {
+          setDisplayed(line.text.slice(0, displayed.length + 1));
+        }, CHAR_DELAY);
+      } else {
+        // Finished typing — pause, then delete (unless last line)
+        timeout.current = setTimeout(() => {
+          setPhase(isLast ? "pausing" : "pausing");
+        }, line.pause);
+      }
+    } else if (phase === "pausing") {
+      if (isLast) return; // stay on last line forever
+      setPhase("deleting");
+    } else if (phase === "deleting") {
+      if (displayed.length > 0) {
+        timeout.current = setTimeout(() => {
+          setDisplayed((d) => d.slice(0, -1));
+        }, DELETE_DELAY);
+      } else {
+        // Move to next line
+        setLineIndex((i) => i + 1);
+        setPhase("typing");
+      }
+    }
+
+    return () => { if (timeout.current) clearTimeout(timeout.current); };
+  }, [displayed, phase, lineIndex]);
 
   return (
-    <section
-      id="home"
-      className="relative min-h-screen flex items-center justify-center overflow-hidden pt-24 pb-12 px-4 sm:px-6 lg:px-8"
+    <h1
+      className="font-serif font-light text-foreground leading-tight mb-2"
+      style={{ fontSize: "clamp(2rem, 3.5vw, 3rem)", minHeight: "1.35em" }}
     >
-      {/* Animated background */}
-      <div className="absolute inset-0 -z-10">
-        <div className="absolute inset-0 bg-grid opacity-30 [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_75%)]" />
-        <div className="absolute top-1/4 -left-20 h-72 w-72 rounded-full bg-blue-500/20 blur-3xl animate-float" />
-        <div
-          className="absolute bottom-1/4 -right-20 h-72 w-72 rounded-full bg-purple-500/20 blur-3xl animate-float"
-          style={{ animationDelay: "2s" }}
-        />
-        <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-96 w-96 rounded-full bg-pink-500/10 blur-3xl animate-float"
-          style={{ animationDelay: "4s" }}
-        />
-      </div>
+      <em className="text-primary not-italic">{displayed}</em>
+      {/* blinking cursor */}
+      <motion.span
+        animate={{ opacity: [1, 0] }}
+        transition={{ duration: 0.55, repeat: Infinity, repeatType: "reverse" }}
+        className="inline-block w-[2px] h-[1em] bg-primary align-middle ml-1 -translate-y-[1px]"
+      />
+    </h1>
+  );
+}
 
-      <div className="container mx-auto max-w-6xl">
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 items-center">
-          {/* Left content */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="lg:col-span-3 text-center lg:text-left"
+export function HeroSection() {
+  return (
+    <>
+      {/* ── Hero ────────────────────────────────────── */}
+      <section
+        id="home"
+        className="relative min-h-screen grid grid-cols-1 lg:grid-cols-2 overflow-hidden"
+      >
+        {/* Left column */}
+        <div className="relative z-10 flex flex-col justify-center px-6 sm:px-10 lg:px-16 pt-32 pb-16 lg:py-0">
+
+          {/* Eyebrow */}
+          <motion.p
+            {...fadeUp(0.2)}
+            className="font-sans text-xs tracking-[0.22em] uppercase text-primary mb-8 label-line"
           >
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1, duration: 0.5 }}
-            >
-              <Badge variant="glass" className="mb-6">
-                <Sparkles className="h-3 w-3 mr-1.5 text-yellow-400" />
-                Available for internships &amp; freelance work
-              </Badge>
-            </motion.div>
+            Available for internships &amp; freelance
+          </motion.p>
 
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.6 }}
-              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.05]"
-            >
-              Hi, I&apos;m{" "}
-              <span className="text-gradient">{siteConfig.name}</span>
-              <span className="block mt-2 text-2xl sm:text-3xl md:text-4xl text-muted-foreground font-medium">
-                IT Student &amp; Software Developer
-              </span>
-            </motion.h1>
+          <TypedHeading />
 
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.6 }}
-              className="mt-6 text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto lg:mx-0"
-            >
-              {siteConfig.longBio}
-            </motion.p>
+          {/* Role */}
+          <motion.p
+            {...fadeUp(0.42)}
+            className="font-sans text-xs tracking-[0.18em] uppercase text-muted-foreground mb-8"
+          >
+            IT Student &amp; Software Developer &nbsp;·&nbsp; Davao City, PH
+          </motion.p>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4, duration: 0.6 }}
-              className="mt-8 flex flex-wrap items-center justify-center lg:justify-start gap-3"
-            >
-              <Button asChild variant="gradient" size="lg">
-                <Link href="/projects">
-                  View Projects
-                  <ArrowRight className="ml-1 h-4 w-4" />
-                </Link>
-              </Button>
-              <Button asChild variant="glass" size="lg">
-                <a href={siteConfig.resumeUrl} download>
-                  <Download className="h-4 w-4" />
-                  Download CV
-                </a>
-              </Button>
-              <Button asChild variant="outline" size="lg">
-                <Link href="/contact">
-                  <Mail className="h-4 w-4" />
-                  Contact Me
-                </Link>
-              </Button>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.6, duration: 0.6 }}
-              className="mt-10 flex items-center justify-center lg:justify-start gap-3"
-            >
-              <span className="text-sm text-muted-foreground hidden sm:inline">
-                Follow me:
-              </span>
-              {siteConfig.social
-                .filter((s) =>
-                  ["github", "linkedin", "twitter"].includes(s.icon)
-                )
-                .map((s) => {
-                  const Icon =
-                    s.icon === "github"
-                      ? Github
-                      : s.icon === "linkedin"
-                      ? Linkedin
-                      : Mail;
-                  return (
-                    <Link
-                      key={s.name}
-                      href={s.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={s.name}
-                      className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-background/50 hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all hover:-translate-y-0.5"
-                    >
-                      <Icon className="h-4 w-4" />
-                    </Link>
-                  );
-                })}
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.7, duration: 0.6 }}
-              className="mt-6 flex items-center justify-center lg:justify-start gap-1.5 text-sm text-muted-foreground"
-            >
-              <MapPin className="h-4 w-4" />
-              {siteConfig.location}
-            </motion.div>
+          {/* Bio — conversational, matching about page tone */}
+          <motion.div
+            {...fadeUp(0.54)}
+            className="space-y-4 mb-10 max-w-lg"
+          >
+            <p className="font-sans text-sm leading-relaxed text-muted-foreground">
+              I&apos;m a freshly graduated BSIT student from{" "}
+              <span className="text-foreground">Holy Cross of Davao College</span> with a
+              genuine love for building things on the web — from clean, thoughtful interfaces
+              to the backend logic that holds everything together.
+            </p>
+            <p className="font-sans text-sm leading-relaxed text-muted-foreground">
+              I also find myself pulled toward AI and IoT whenever curiosity gets the better
+              of me. Right now I&apos;m looking for a place where I can contribute something
+              real, grow alongside people who care about what they build, and keep getting
+              better at this craft.
+            </p>
           </motion.div>
 
-          {/* Right — profile card */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.3, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-            className="lg:col-span-2 flex justify-center"
-          >
-            <div className="relative w-64 h-64 sm:w-80 sm:h-80">
-              <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 blur-2xl opacity-40 animate-pulse" />
-              <div className="relative h-full w-full rounded-3xl glass-strong p-2 shadow-2xl">
-                <div className="relative h-full w-full rounded-2xl overflow-hidden bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-950 dark:to-purple-950">
-                  <Image
-                    src="/images/profile.jpg"
-                    alt={`${siteConfig.name} profile photo`}
-                    fill
-                    className="object-cover object-top"
-                    priority
-                    sizes="(max-width: 640px) 256px, 320px"
-                  />
-                </div>
-              </div>
+          {/* CTAs */}
+          <motion.div {...fadeUp(0.66)} className="flex flex-wrap items-center gap-4 mb-8">
+            <Link
+              href="/projects"
+              className="inline-flex items-center gap-2 font-sans text-xs tracking-[0.14em] uppercase bg-foreground text-background px-6 py-3 hover:bg-primary transition-colors duration-300"
+            >
+              View Work <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+            <a
+              href={siteConfig.resumeUrl}
+              download
+              className="inline-flex items-center gap-2 font-sans text-xs tracking-[0.14em] uppercase border border-border text-muted-foreground px-6 py-3 hover:border-primary hover:text-primary transition-colors duration-300"
+            >
+              <Download className="h-3.5 w-3.5" /> Download CV
+            </a>
+            <Link
+              href="/about"
+              className="font-sans text-xs tracking-[0.14em] uppercase text-muted-foreground hover:text-primary transition-colors duration-300 underline-offset-4 hover:underline"
+            >
+              More about me
+            </Link>
+          </motion.div>
 
-              {/* Floating tech badges */}
-              <motion.div
-                animate={{ y: [0, -10, 0] }}
-                transition={{
-                  duration: 4,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-                className="absolute -top-4 -right-4 glass-strong rounded-xl px-3 py-2 shadow-lg"
-              >
-                <span className="text-sm font-semibold">⚛️ React</span>
-              </motion.div>
-              <motion.div
-                animate={{ y: [0, 10, 0] }}
-                transition={{
-                  duration: 4,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                  delay: 1,
-                }}
-                className="absolute top-1/2 -left-6 glass-strong rounded-xl px-3 py-2 shadow-lg"
-              >
-                <span className="text-sm font-semibold">🚀 Next.js</span>
-              </motion.div>
-              <motion.div
-                animate={{ y: [0, -8, 0] }}
-                transition={{
-                  duration: 4,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                  delay: 2,
-                }}
-                className="absolute -bottom-4 right-8 glass-strong rounded-xl px-3 py-2 shadow-lg"
-              >
-                <span className="text-sm font-semibold">🤖 AI</span>
-              </motion.div>
-            </div>
+          {/* Social links */}
+          <motion.div {...fadeUp(0.76)} className="flex items-center gap-3">
+            {siteConfig.social.filter((s) => ["github", "linkedin"].includes(s.icon)).map((s) => {
+              const Icon = s.icon === "github" ? Github : Linkedin;
+              return (
+                <Link
+                  key={s.name}
+                  href={s.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={s.name}
+                  className="inline-flex h-9 w-9 items-center justify-center border border-border/60 text-muted-foreground hover:border-primary hover:text-primary transition-all duration-300"
+                >
+                  <Icon className="h-4 w-4" />
+                </Link>
+              );
+            })}
           </motion.div>
         </div>
 
-        {/* Scroll indicator */}
+        {/* Right column — portrait */}
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 1, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+          className="relative hidden lg:flex items-center justify-center"
+        >
+          <div className="relative flex flex-col items-center gap-6">
+
+            {/* Portrait — contained card */}
+            <div className="relative w-64 xl:w-72">
+              {/* Decorative border offset */}
+              <div className="absolute -inset-2 border border-primary/20" />
+              <div className="relative overflow-hidden" style={{ aspectRatio: "3/4" }}>
+                <Image
+                  src="/images/profile.jpg"
+                  alt={`${siteConfig.name} portrait`}
+                  fill
+                  className="object-cover object-top"
+                  style={{ filter: "sepia(6%) contrast(1.05)" }}
+                  priority
+                  sizes="320px"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-background/30 via-transparent to-transparent" />
+              </div>
+
+              {/* GPA badge */}
+              <motion.div
+                animate={{ y: [0, -5, 0] }}
+                transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute -bottom-4 -left-6 glass border border-border/60 px-4 py-2.5 shadow-lg"
+              >
+                <p className="font-serif text-xl font-light text-foreground leading-none">3.94</p>
+                <p className="font-sans text-[9px] tracking-[0.15em] uppercase text-muted-foreground mt-0.5">GPA Average</p>
+              </motion.div>
+
+              {/* Projects badge */}
+              <motion.div
+                animate={{ y: [0, 5, 0] }}
+                transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
+                className="absolute -top-4 -right-6 glass border border-border/60 px-4 py-2.5 shadow-lg"
+              >
+                <p className="font-serif text-xl font-light text-foreground leading-none">8+</p>
+                <p className="font-sans text-[9px] tracking-[0.15em] uppercase text-muted-foreground mt-0.5">Projects Built</p>
+              </motion.div>
+            </div>
+
+            {/* Name label below photo */}
+            <div className="text-center">
+              <p className="font-serif text-sm font-light text-foreground/70 tracking-wide">{siteConfig.name}</p>
+              <p className="font-sans text-[9px] tracking-[0.2em] uppercase text-muted-foreground mt-0.5">{siteConfig.location}</p>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Scroll hint */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1, duration: 0.6 }}
-          className="hidden md:flex absolute bottom-8 left-1/2 -translate-x-1/2 flex-col items-center gap-2 text-muted-foreground text-xs"
+          transition={{ delay: 1.4 }}
+          className="absolute bottom-8 left-6 sm:left-10 lg:left-16 flex items-center gap-3 text-muted-foreground"
         >
-          <span>Scroll to explore</span>
-          <motion.div
-            animate={{ y: [0, 8, 0] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-            className="h-8 w-5 rounded-full border-2 border-current flex items-start justify-center p-1"
-          >
-            <div className="h-1.5 w-1 rounded-full bg-current" />
-          </motion.div>
+          <div className="w-10 h-px bg-border" />
+          <span className="font-sans text-[10px] tracking-[0.2em] uppercase">Scroll to explore</span>
         </motion.div>
+      </section>
+
+      {/* ── Marquee ─────────────────────────────────── */}
+      <div className="border-y border-border/50 overflow-hidden py-3">
+        <div className="flex animate-marquee whitespace-nowrap gap-10">
+          {[...marqueeItems, ...marqueeItems].map((item, i) => (
+            <span key={i} className="font-serif italic text-muted-foreground text-base">
+              {item}
+              <span className="text-primary ml-10 not-italic">&middot;</span>
+            </span>
+          ))}
+        </div>
       </div>
-    </section>
+    </>
   );
 }

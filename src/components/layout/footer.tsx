@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Github, Linkedin, Mail, Twitter, Heart } from "lucide-react";
+import { Github, Linkedin, Mail, Twitter } from "lucide-react";
 import { siteConfig } from "@/lib/site";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -13,52 +13,43 @@ export function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="relative border-t border-border/50 bg-background/50 backdrop-blur-sm">
-      <div className="container mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+    <footer className="border-t border-border/40 bg-background">
+      <div className="container mx-auto max-w-6xl px-6 sm:px-10 lg:px-16 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+
+          {/* Brand */}
           <div>
-            <Link
-              href="/"
-              className="text-xl font-bold tracking-tight"
-              aria-label="Home"
-            >
-              {siteConfig.name}
-              <span className="text-primary">.</span>
+            <Link href="/" className="inline-block mb-4" aria-label="Home">
+              <span className="font-serif text-2xl font-light text-foreground tracking-wide">
+                Robert <em className="text-primary">John.</em>
+              </span>
             </Link>
-            <p className="mt-3 text-sm text-muted-foreground max-w-xs leading-relaxed">
+            <p className="font-sans text-xs leading-relaxed text-muted-foreground max-w-xs">
               {siteConfig.bio}
             </p>
           </div>
 
+          {/* Sitemap */}
           <div>
-            <h3 className="text-sm font-semibold mb-4">Sitemap</h3>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>
-                <Link href="/about" className="hover:text-foreground animated-underline">
-                  About
-                </Link>
-              </li>
-              <li>
-                <Link href="/projects" className="hover:text-foreground animated-underline">
-                  Projects
-                </Link>
-              </li>
-              <li>
-                <Link href="/resume" className="hover:text-foreground animated-underline">
-                  Resume
-                </Link>
-              </li>
-              <li>
-                <Link href="/contact" className="hover:text-foreground animated-underline">
-                  Contact
-                </Link>
-              </li>
+            <h3 className="font-sans text-[10px] tracking-[0.2em] uppercase text-muted-foreground mb-5">Sitemap</h3>
+            <ul className="space-y-3">
+              {["/about", "/projects", "/resume", "/certifications", "/contact"].map((href) => (
+                <li key={href}>
+                  <Link
+                    href={href}
+                    className="font-sans text-sm text-foreground/60 hover:text-primary animated-underline transition-colors"
+                  >
+                    {href.replace("/", "").replace(/(^\w)/, (c) => c.toUpperCase())}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
+          {/* Connect */}
           <div>
-            <h3 className="text-sm font-semibold mb-4">Connect</h3>
-            <ul className="flex flex-wrap gap-2">
+            <h3 className="font-sans text-[10px] tracking-[0.2em] uppercase text-muted-foreground mb-5">Connect</h3>
+            <ul className="space-y-3 mb-6">
               {siteConfig.social.map((item) => {
                 const Icon = iconMap[item.icon] ?? Mail;
                 return (
@@ -67,10 +58,10 @@ export function Footer() {
                       href={item.url}
                       target={item.url.startsWith("http") ? "_blank" : undefined}
                       rel={item.url.startsWith("http") ? "noopener noreferrer" : undefined}
-                      aria-label={item.name}
-                      className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-background/50 hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors"
+                      className="inline-flex items-center gap-2.5 font-sans text-sm text-foreground/60 hover:text-primary transition-colors"
                     >
-                      <Icon className="h-4 w-4" />
+                      <Icon className="h-3.5 w-3.5" />
+                      {item.handle || item.name}
                     </Link>
                   </li>
                 );
@@ -79,14 +70,12 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-10 pt-6 border-t border-border/50 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-muted-foreground">
-          <p>
-            © {year} {siteConfig.name}. All rights reserved.
+        <div className="mt-12 pt-6 border-t border-border/40 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <p className="font-sans text-xs text-muted-foreground">
+            &copy; {year} {siteConfig.name}. All rights reserved.
           </p>
-          <p className="flex items-center gap-1.5">
-            Built with
-            <Heart className="h-3.5 w-3.5 text-red-500 fill-red-500" />
-            using Next.js, TypeScript, Tailwind & Framer Motion
+          <p className="font-serif italic text-muted-foreground/50 text-sm">
+            crafted with intention
           </p>
         </div>
       </div>

@@ -93,7 +93,11 @@ export default function AboutPage() {
         <SectionHeading
           eyebrow="Biography"
           title="A bit more about me"
-          description="Personal, professional, and everything in between."
+          lines={[
+            { text: "I'm not just a resume — here's the fuller picture.", variant: "sub" },
+            { text: "Where I came from, what I've done, and where I'm headed.", variant: "sub" },
+            { text: "grab a coffee, it's a good read.", variant: "hint" },
+          ]}
         />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
 
@@ -203,7 +207,11 @@ export default function AboutPage() {
         <SectionHeading
           eyebrow="At a Glance"
           title="Quick facts"
-          description="The short version, for people in a hurry."
+          lines={[
+            { text: "For the recruiters and curious folks who want the short version.", variant: "sub" },
+            { text: "Everything you need to know about me in under a minute.", variant: "sub" },
+            { text: "spoiler: I'm based in Davao and I love what I do.", variant: "hint" },
+          ]}
         />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto">
           {quickFacts.map((f) => {
@@ -231,7 +239,11 @@ export default function AboutPage() {
         <SectionHeading
           eyebrow="What I Believe"
           title="How I approach my work"
-          description="The principles that guide how I build and how I show up for people."
+          lines={[
+            { text: "Code is just the medium. The real work is caring about the outcome.", variant: "sub" },
+            { text: "These are the things that guide how I show up, every time.", variant: "sub" },
+            { text: "not just words — I actually try to live by these.", variant: "hint" },
+          ]}
         />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {values.map((v) => {
@@ -257,7 +269,11 @@ export default function AboutPage() {
         <SectionHeading
           eyebrow="Stack"
           title="Technologies I work with"
-          description="Tools, languages, and frameworks that power the things I build."
+          lines={[
+            { text: "Frontend, backend, hardware — I like knowing how the whole thing fits together.", variant: "sub" },
+            { text: "Built up over semesters, projects, and a lot of docs-reading.", variant: "sub" },
+            { text: "still learning. always will be.", variant: "hint" },
+          ]}
         />
         <div className="space-y-8 max-w-5xl mx-auto">
           {skillGroups.map((group) => (

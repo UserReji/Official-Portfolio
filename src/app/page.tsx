@@ -30,7 +30,11 @@ export default function HomePage() {
         <SectionHeading
           eyebrow="Tech Stack"
           title="Skills & technologies I work with"
-          description="A blend of frontend, backend, and emerging tech — constantly expanding as I learn."
+          lines={[
+            { text: "I've picked these up through projects, late nights, and a lot of curiosity.", variant: "sub" },
+            { text: "Some I know deeply, some I'm still exploring — always adding more.", variant: "sub" },
+            { text: "hover a skill to see how far I've come with it.", variant: "hint" },
+          ]}
         />
         <SkillsSection groups={skillGroups} />
       </Section>
@@ -38,7 +42,11 @@ export default function HomePage() {
         <SectionHeading
           eyebrow="Journey"
           title="Education, experience & milestones"
-          description="A timeline of the work, study, and achievements that have shaped my career so far."
+          lines={[
+            { text: "Every semester, every project, every late night — it all counts.", variant: "sub" },
+            { text: "Click any card to see the grades behind the GPA.", variant: "sub" },
+            { text: "yes, I'm proud of them. 😄", variant: "hint" },
+          ]}
         />
         <TimelineSection entries={timeline} />
       </Section>
@@ -46,7 +54,11 @@ export default function HomePage() {
         <SectionHeading
           eyebrow="Kind Words"
           title="What people say about working with me"
-          description="Testimonials from mentors, professors, and teammates I have had the privilege of working with."
+          lines={[
+            { text: "These are from people who've actually seen me work — no fluff.", variant: "sub" },
+            { text: "Mentors, professors, teammates. I'm grateful for every one of them.", variant: "sub" },
+            { text: "have something to say? feel free to leave one below.", variant: "hint" },
+          ]}
         />
         <TestimonialsSection items={testimonials} />
       </Section>

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { Quote, Send, CheckCircle2, XCircle, ChevronDown, ChevronUp } from "lucide-react";
+import { Send, CheckCircle2, XCircle, ChevronDown, ChevronUp } from "lucide-react";
 import type { Testimonial } from "@/types";
 import { useState, useEffect } from "react";
 
@@ -14,7 +14,6 @@ export function TestimonialsSection({ items: initial }: { items: Testimonial[] }
   const [errorMsg, setErrorMsg] = useState("");
   const [showForm, setShowForm] = useState(false);
 
-  // Keep in sync if the server re-renders with new data
   useEffect(() => { setItems(initial); }, [initial]);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -31,15 +30,8 @@ export function TestimonialsSection({ items: initial }: { items: Testimonial[] }
 
       const data = await res.json();
 
-      if (res.status === 409) {
-        setStatus("duplicate");
-        return;
-      }
-      if (!res.ok) {
-        setErrorMsg(data.error || "Something went wrong.");
-        setStatus("error");
-        return;
-      }
+      if (res.status === 409) { setStatus("duplicate"); return; }
+      if (!res.ok) { setErrorMsg(data.error || "Something went wrong."); setStatus("error"); return; }
 
       setItems((prev) => [...prev, data]);
       setForm(EMPTY);
@@ -52,10 +44,10 @@ export function TestimonialsSection({ items: initial }: { items: Testimonial[] }
   }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-10">
+    <div className="max-w-5xl mx-auto space-y-12">
 
-      {/* Cards grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <AnimatePresence initial={false}>
           {items.map((t, i) => (
             <motion.figure
@@ -63,16 +55,16 @@ export function TestimonialsSection({ items: initial }: { items: Testimonial[] }
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.4, delay: i * 0.05 }}
-              className="relative rounded-2xl border border-border bg-card p-6 hover:border-primary/40 hover:shadow-lg transition-all"
+              transition={{ duration: 0.5, delay: i * 0.06 }}
+              className="border border-border/50 bg-card p-8 hover:border-primary/30 transition-colors duration-300"
             >
-              <Quote className="absolute top-4 right-4 h-8 w-8 text-primary/20" />
-              <blockquote className="text-sm leading-relaxed text-foreground/90">
-                &ldquo;{t.content}&rdquo;
+              <div className="font-serif text-5xl text-primary/20 leading-none mb-4">&ldquo;</div>
+              <blockquote className="font-serif text-base font-light leading-relaxed text-foreground/80 italic mb-6">
+                {t.content}
               </blockquote>
-              <figcaption className="mt-4 pt-4 border-t border-border/50">
-                <div className="font-semibold">{t.name}</div>
-                <div className="text-sm text-muted-foreground">
+              <figcaption className="pt-4 border-t border-border/40">
+                <div className="font-sans text-sm font-medium text-foreground">{t.name}</div>
+                <div className="font-sans text-xs text-muted-foreground mt-0.5">
                   {t.role}{t.company ? ` · ${t.company}` : ""}
                 </div>
               </figcaption>
@@ -81,40 +73,28 @@ export function TestimonialsSection({ items: initial }: { items: Testimonial[] }
         </AnimatePresence>
       </div>
 
-      {/* Toggle button */}
+      {/* Toggle */}
       <div className="flex justify-center">
         {status === "success" ? (
           <motion.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex items-center gap-2 text-sm text-emerald-500 font-medium"
+            className="flex items-center gap-2 font-sans text-sm text-primary"
           >
             <CheckCircle2 className="h-4 w-4" />
-            Thanks! Your testimonial has been added.
+            Thank you — your testimonial has been added.
           </motion.div>
         ) : (
           <button
-            onClick={() => {
-              setShowForm((v) => !v);
-              setStatus("idle");
-              setErrorMsg("");
-            }}
-            className="flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-medium hover:border-primary/50 hover:bg-muted transition"
+            onClick={() => { setShowForm((v) => !v); setStatus("idle"); setErrorMsg(""); }}
+            className="inline-flex items-center gap-2 font-sans text-xs tracking-[0.14em] uppercase text-muted-foreground border border-border px-6 py-3 hover:border-primary hover:text-primary transition-all duration-300"
           >
-            {showForm ? (
-              <>
-                <ChevronUp className="h-4 w-4" /> Cancel
-              </>
-            ) : (
-              <>
-                <Send className="h-4 w-4" /> Leave a testimonial
-              </>
-            )}
+            {showForm ? <><ChevronUp className="h-3.5 w-3.5" /> Cancel</> : <><Send className="h-3.5 w-3.5" /> Leave a testimonial</>}
           </button>
         )}
       </div>
 
-      {/* Submission form */}
+      {/* Form */}
       <AnimatePresence>
         {showForm && (
           <motion.div
@@ -122,20 +102,20 @@ export function TestimonialsSection({ items: initial }: { items: Testimonial[] }
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.35 }}
             className="overflow-hidden"
           >
-            <div className="rounded-2xl border border-border bg-card p-6 max-w-2xl mx-auto">
-              <h3 className="font-semibold text-lg mb-1">Leave a testimonial</h3>
-              <p className="text-sm text-muted-foreground mb-6">
+            <div className="border border-border/50 bg-card p-8 max-w-2xl mx-auto">
+              <h3 className="font-serif text-2xl font-light text-foreground mb-1">Leave a testimonial</h3>
+              <p className="font-sans text-sm text-muted-foreground mb-8">
                 Worked with me? I&apos;d love to hear what you thought.
               </p>
 
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-medium text-muted-foreground mb-1.5">
-                      Your name <span className="text-red-500">*</span>
+                    <label className="block font-sans text-[10px] tracking-[0.15em] uppercase text-muted-foreground mb-2">
+                      Your name <span className="text-primary">*</span>
                     </label>
                     <input
                       type="text"
@@ -143,12 +123,12 @@ export function TestimonialsSection({ items: initial }: { items: Testimonial[] }
                       onChange={(e) => setForm({ ...form, name: e.target.value })}
                       required
                       placeholder="e.g. Juan Dela Cruz"
-                      className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition"
+                      className="w-full border border-border bg-background px-4 py-3 font-sans text-sm outline-none focus:border-primary transition-colors"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-muted-foreground mb-1.5">
-                      Role / Relation <span className="text-red-500">*</span>
+                    <label className="block font-sans text-[10px] tracking-[0.15em] uppercase text-muted-foreground mb-2">
+                      Role / Relation <span className="text-primary">*</span>
                     </label>
                     <input
                       type="text"
@@ -156,27 +136,27 @@ export function TestimonialsSection({ items: initial }: { items: Testimonial[] }
                       onChange={(e) => setForm({ ...form, role: e.target.value })}
                       required
                       placeholder="e.g. Classmate, Professor"
-                      className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition"
+                      className="w-full border border-border bg-background px-4 py-3 font-sans text-sm outline-none focus:border-primary transition-colors"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-muted-foreground mb-1.5">
-                    Organization <span className="text-xs text-muted-foreground/60">(optional)</span>
+                  <label className="block font-sans text-[10px] tracking-[0.15em] uppercase text-muted-foreground mb-2">
+                    Organization <span className="text-muted-foreground/50">(optional)</span>
                   </label>
                   <input
                     type="text"
                     value={form.company}
                     onChange={(e) => setForm({ ...form, company: e.target.value })}
                     placeholder="e.g. Holy Cross of Davao College"
-                    className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition"
+                    className="w-full border border-border bg-background px-4 py-3 font-sans text-sm outline-none focus:border-primary transition-colors"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-muted-foreground mb-1.5">
-                    Your message <span className="text-red-500">*</span>
+                  <label className="block font-sans text-[10px] tracking-[0.15em] uppercase text-muted-foreground mb-2">
+                    Your message <span className="text-primary">*</span>
                   </label>
                   <textarea
                     value={form.content}
@@ -184,30 +164,27 @@ export function TestimonialsSection({ items: initial }: { items: Testimonial[] }
                     required
                     rows={4}
                     placeholder="What was it like working with me?"
-                    className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition resize-none"
+                    className="w-full border border-border bg-background px-4 py-3 font-sans text-sm outline-none focus:border-primary transition-colors resize-none"
                   />
                 </div>
 
-                {/* Error / duplicate messages */}
                 {status === "duplicate" && (
-                  <div className="flex items-center gap-2 text-sm text-amber-500">
-                    <XCircle className="h-4 w-4 shrink-0" />
-                    A testimonial from this name already exists.
+                  <div className="flex items-center gap-2 font-sans text-xs text-amber-600">
+                    <XCircle className="h-4 w-4" /> A testimonial from this name already exists.
                   </div>
                 )}
                 {status === "error" && (
-                  <div className="flex items-center gap-2 text-sm text-red-500">
-                    <XCircle className="h-4 w-4 shrink-0" />
-                    {errorMsg}
+                  <div className="flex items-center gap-2 font-sans text-xs text-destructive">
+                    <XCircle className="h-4 w-4" /> {errorMsg}
                   </div>
                 )}
 
                 <button
                   type="submit"
                   disabled={status === "sending"}
-                  className="flex items-center gap-2 rounded-lg bg-primary text-primary-foreground px-5 py-2.5 text-sm font-semibold hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                  className="inline-flex items-center gap-2 font-sans text-xs tracking-[0.14em] uppercase bg-foreground text-background px-6 py-3 hover:bg-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
                 >
-                  <Send className="h-4 w-4" />
+                  <Send className="h-3.5 w-3.5" />
                   {status === "sending" ? "Submitting…" : "Submit"}
                 </button>
               </form>

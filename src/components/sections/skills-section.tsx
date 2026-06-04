@@ -13,63 +13,67 @@ export function SkillsSection({ groups }: SkillsSectionProps) {
   const current = groups[active];
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      {/* Tabs */}
-      <div className="lg:col-span-1 flex flex-col gap-2">
+    <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      {/* Category tabs */}
+      <div className="lg:col-span-1 flex flex-col gap-0">
         {groups.map((group, i) => (
           <button
             key={group.category}
             onClick={() => setActive(i)}
-            className={`text-left rounded-lg p-4 transition-all border ${
-              active === i
-                ? "border-primary bg-primary/5 shadow-sm"
-                : "border-border hover:border-primary/30 hover:bg-muted/30"
+            className={`text-left px-0 py-4 border-b border-border/40 transition-all duration-300 ${
+              active === i ? "border-l-2 border-l-primary pl-4" : "pl-0 hover:pl-2"
             }`}
           >
             <div className="flex items-center justify-between">
-              <h3 className="font-semibold">{group.category}</h3>
-              <span className="text-xs text-muted-foreground">
+              <h3 className={`font-sans text-xs tracking-[0.12em] uppercase transition-colors ${
+                active === i ? "text-primary" : "text-muted-foreground"
+              }`}>{group.category}</h3>
+              <span className="font-serif text-sm text-muted-foreground/60">
                 {group.skills.length}
               </span>
             </div>
-            {group.description && (
-              <p className="text-sm text-muted-foreground mt-1">
+            {active === i && group.description && (
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="font-sans text-xs text-muted-foreground mt-1 leading-relaxed"
+              >
                 {group.description}
-              </p>
+              </motion.p>
             )}
           </button>
         ))}
       </div>
 
-      {/* Animated skill bars */}
-      <div className="lg:col-span-2">
+      {/* Skills grid */}
+      <div className="lg:col-span-3">
         <motion.div
           key={active}
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+          transition={{ duration: 0.4 }}
+          className="grid grid-cols-1 sm:grid-cols-2 gap-3"
         >
           {current.skills.map((skill, i) => (
             <motion.div
               key={skill.name}
-              initial={{ opacity: 0, x: -10 }}
+              initial={{ opacity: 0, x: -8 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.05, duration: 0.3 }}
-              className="rounded-lg border border-border bg-card p-4 hover:border-primary/40 transition-colors"
+              transition={{ delay: i * 0.04, duration: 0.35 }}
+              className="group border border-border/50 bg-card hover:border-primary/30 transition-colors duration-300 p-5"
             >
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-medium">{skill.name}</span>
-                <span className="text-xs text-muted-foreground">
-                  {skill.level}/5
+              <div className="flex items-center justify-between mb-3">
+                <span className="font-sans text-sm text-foreground">{skill.name}</span>
+                <span className="font-serif italic text-muted-foreground/60 text-sm">
+                  {["—", "Basic", "Familiar", "Proficient", "Advanced", "Expert"][skill.level]}
                 </span>
               </div>
-              <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+              <div className="h-px bg-border overflow-hidden">
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${(skill.level / 5) * 100}%` }}
-                  transition={{ duration: 0.8, ease: "easeOut" }}
-                  className="h-full rounded-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600"
+                  transition={{ duration: 0.9, ease: "easeOut", delay: i * 0.04 }}
+                  className="h-full bg-primary"
                 />
               </div>
             </motion.div>

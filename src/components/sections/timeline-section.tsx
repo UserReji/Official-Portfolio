@@ -1,9 +1,10 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { Award, Briefcase, GraduationCap, Trophy } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Award, Briefcase, GraduationCap, Trophy, TrendingUp } from "lucide-react";
 import type { TimelineEntry } from "@/types";
-import { calculateDuration, formatDate } from "@/lib/utils";
+import { formatDate } from "@/lib/utils";
+import { useState } from "react";
 
 const iconMap = {
   education: GraduationCap,
@@ -12,97 +13,147 @@ const iconMap = {
   certification: Award,
 };
 
-const colorMap = {
-  education: "from-blue-600 to-cyan-500",
-  experience: "from-purple-600 to-pink-500",
-  achievement: "from-amber-500 to-orange-500",
-  certification: "from-emerald-500 to-teal-500",
-};
+function gradeColor(raw: string): string {
+  const n = parseFloat(raw);
+  if (isNaN(n)) return "text-muted-foreground";
+  if (n <= 1.5) return "text-emerald-500";
+  if (n <= 2.0) return "text-primary";
+  if (n <= 2.5) return "text-amber-500";
+  return "text-orange-500";
+}
+
+function parseGrades(highlights: string[] = []) {
+  return highlights.map((h) => {
+    const match = h.match(/^(.+?)\s*—\s*Final Grade:\s*([\d.]+)$/);
+    if (!match) return { subject: h, grade: null };
+    return { subject: match[1].trim(), grade: match[2] };
+  });
+}
 
 export function TimelineSection({ entries }: { entries: TimelineEntry[] }) {
-  return (
-    <div className="relative max-w-4xl mx-auto">
-      {/* Center line */}
-      <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-border to-transparent md:-translate-x-1/2" />
+  const [openId, setOpenId] = useState<string | null>(null);
 
-      <div className="space-y-12">
+  return (
+    <div className="relative max-w-3xl mx-auto">
+      {/* Vertical line */}
+      <div className="absolute left-[18px] md:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-border/60 to-transparent md:-translate-x-px" />
+
+      <div className="space-y-4">
         {entries.map((entry, i) => {
           const Icon = iconMap[entry.type];
           const isLeft = i % 2 === 0;
+          const isOpen = openId === entry.id;
+          const hasGrades = entry.highlights?.some((h) => h.includes("Final Grade"));
+          const grades = parseGrades(entry.highlights);
 
           return (
             <motion.div
               key={entry.id}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.5, delay: i * 0.05 }}
-              className={`relative grid grid-cols-1 md:grid-cols-2 gap-8 ${
+              viewport={{ once: true, margin: "-40px" }}
+              transition={{ duration: 0.5, delay: i * 0.04, ease: [0.22, 1, 0.36, 1] }}
+              className={`relative grid grid-cols-1 md:grid-cols-2 gap-4 ${
                 isLeft ? "" : "md:[direction:rtl]"
               }`}
             >
               {/* Icon dot */}
-              <div className="absolute left-4 md:left-1/2 top-2 -translate-x-1/2 z-10">
-                <div
-                  className={`flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br ${colorMap[entry.type]} text-white shadow-lg ring-4 ring-background`}
-                >
-                  <Icon className="h-4 w-4" />
+              <div className="absolute left-[18px] md:left-1/2 top-3 -translate-x-1/2 z-10">
+                <div className={`flex h-7 w-7 items-center justify-center border bg-background shadow-sm ring-2 ring-background transition-colors duration-300 ${
+                  isOpen ? "border-primary text-primary" : "border-primary/40 text-primary/60"
+                }`}>
+                  <Icon className="h-3.5 w-3.5" />
                 </div>
               </div>
 
               {/* Card */}
-              <div
-                className={`pl-12 md:pl-0 ${
-                  isLeft ? "md:pr-12 md:text-right" : "md:pl-12"
-                }`}
-              >
-                <div
-                  className={`inline-block rounded-xl border border-border bg-card p-5 shadow-sm hover:shadow-md transition-shadow ${
-                    isLeft ? "md:text-left" : ""
+              <div className={`pl-10 md:pl-0 ${
+                isLeft ? "md:pr-8 md:[direction:ltr]" : "md:pl-8 md:[direction:ltr]"
+              }`}>
+                <button
+                  onClick={() => hasGrades && setOpenId(isOpen ? null : entry.id)}
+                  className={`w-full text-left border bg-card transition-all duration-300 ${
+                    hasGrades ? "cursor-pointer" : "cursor-default"
+                  } ${
+                    isOpen
+                      ? "border-primary/50"
+                      : hasGrades
+                      ? "border-border/50 hover:border-primary/30"
+                      : "border-border/30"
                   }`}
                 >
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
-                    <span>
-                      {formatDate(entry.startDate, { month: "short", year: "numeric" })}
-                      {" — "}
-                      {entry.endDate
-                        ? formatDate(entry.endDate, { month: "short", year: "numeric" })
-                        : "Present"}
-                    </span>
-                    <span>•</span>
-                    <span>{calculateDuration(entry.startDate, entry.endDate)}</span>
+                  {/* Always-visible header */}
+                  <div className="flex items-center justify-between gap-2 px-4 pt-4 pb-3">
+                    <div className="flex-1 min-w-0">
+                      <span className="font-sans text-[10px] tracking-[0.14em] uppercase text-muted-foreground block mb-1">
+                        {formatDate(entry.startDate, { month: "short", year: "numeric" })}
+                        {" — "}
+                        {entry.endDate
+                          ? formatDate(entry.endDate, { month: "short", year: "numeric" })
+                          : "Present"}
+                      </span>
+                      <h3 className="font-serif text-base font-light text-foreground leading-snug">
+                        {entry.title}
+                      </h3>
+                      {entry.gpa && (
+                        <p className="font-sans text-[10px] text-muted-foreground mt-0.5 flex items-center gap-1">
+                          <TrendingUp className="h-2.5 w-2.5" />
+                          {entry.gpa}
+                        </p>
+                      )}
+                    </div>
+
+                    {hasGrades && (
+                      <motion.span
+                        animate={{ rotate: isOpen ? 45 : 0 }}
+                        transition={{ duration: 0.25 }}
+                        className="text-primary/60 text-lg leading-none shrink-0 ml-2 select-none"
+                      >
+                        +
+                      </motion.span>
+                    )}
                   </div>
-                  <h3 className="font-semibold text-lg">{entry.title}</h3>
-                  <p className="text-sm text-primary font-medium">
-                    {entry.organization}
-                    {entry.location && ` · ${entry.location}`}
-                  </p>
-                  <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
-                    {entry.description}
-                  </p>
-                  {entry.gpa && (
-                    <p className="text-xs mt-2 inline-block px-2 py-1 rounded bg-primary/10 text-primary">
-                      GPA: {entry.gpa}
-                    </p>
-                  )}
-                  {entry.highlights && entry.highlights.length > 0 && (
-                    <ul
-                      className={`mt-3 space-y-1 text-sm text-muted-foreground ${
-                        isLeft ? "md:text-left" : ""
-                      }`}
-                    >
-                      {entry.highlights.map((h) => (
-                        <li key={h} className="flex items-start gap-2">
-                          <span className="text-primary mt-1">▹</span>
-                          <span>{h}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
+
+                  {/* Expandable grades */}
+                  <AnimatePresence initial={false}>
+                    {isOpen && (
+                      <motion.div
+                        key="grades"
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                        className="overflow-hidden"
+                      >
+                        <div className="border-t border-border/40 mx-4" />
+                        <div className="px-4 pb-4 pt-3 space-y-0">
+                          {grades.map(({ subject, grade }, j) => (
+                            <motion.div
+                              key={j}
+                              initial={{ opacity: 0, x: -6 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ delay: j * 0.05, duration: 0.3 }}
+                              className="flex items-center justify-between py-2.5 border-b border-border/20 last:border-0"
+                            >
+                              <div className="flex items-center gap-2">
+                                <span className="text-primary/60 text-xs">▹</span>
+                                <span className="font-sans text-sm text-foreground/80">{subject}</span>
+                              </div>
+                              {grade && (
+                                <span className={`font-serif text-lg font-light leading-none ${gradeColor(grade)}`}>
+                                  {grade}
+                                </span>
+                              )}
+                            </motion.div>
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </button>
               </div>
 
-              {/* Spacer for the other side */}
+              {/* Spacer */}
               <div className="hidden md:block" />
             </motion.div>
           );
