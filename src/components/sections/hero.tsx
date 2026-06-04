@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { ArrowRight, Download, Github, Linkedin } from "lucide-react";
 import { siteConfig } from "@/lib/site";
 import { useEffect, useState, useRef } from "react";
@@ -15,7 +15,8 @@ function FloatingBadge({
 }: {
   number: string;
   label: string;
-  parentRef: React.RefObject<HTMLDivElement>;
+  // Accept a nullable ref (the caller typically uses useRef<HTMLDivElement | null>())
+  parentRef: React.RefObject<HTMLDivElement | null>;
 }) {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const badgeRef = useRef<HTMLDivElement>(null);
