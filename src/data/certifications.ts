@@ -63,4 +63,17 @@ export const certifications: Certification[] = [
       "Simplilearn certificate for completing the Getting Started with Full Stack Java Development course.",
     neverExpires: true,
   },
+  {
+    slug: "simplilearn-ml-python",
+    title: "Machine Learning Using Python",
+    issuer: "Simplilearn",
+    issueDate: "2026-06-04",
+    credentialId: "10306053",
+    credentialUrl: "https://simpli-web.app.link/e/r184gnVXG3b",
+    image: "/certifications/simplilearn-ml-python.jpg",
+    skills: ["Machine Learning", "Python", "Data Science", "AI", "Deep Learning"],
+    description:
+      "Certificate of completion for the Machine Learning Using Python course on Simplilearn, demonstrating expertise in ML algorithms and Python implementation.",
+    neverExpires: true,
+  },
 ];

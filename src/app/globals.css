@@ -96,6 +96,7 @@
     @apply bg-background text-foreground antialiased;
     font-family: 'DM Sans', system-ui, sans-serif;
     font-feature-settings: "rlig" 1, "calt" 1;
+    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="%239E7E5A"/><circle cx="12" cy="12" r="8" fill="none" stroke="%239E7E5A" stroke-width="0.5" opacity="0.3"/></svg>') 12 12, auto;
   }
   h1, h2, h3, h4 {
     font-family: 'Cormorant Garamond', Georgia, serif;

@@ -7,6 +7,89 @@ import { ArrowRight, Download, Github, Linkedin } from "lucide-react";
 import { siteConfig } from "@/lib/site";
 import { useEffect, useState, useRef } from "react";
 
+// Floating badge component with mouse repulsion
+function FloatingBadge({
+  number,
+  label,
+  parentRef,
+}: {
+  number: string;
+  label: string;
+  parentRef: React.RefObject<HTMLDivElement>;
+}) {
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const badgeRef = useRef<HTMLDivElement>(null);
+  const targetPos = useRef({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!parentRef.current || !badgeRef.current) return;
+
+      const parentRect = parentRef.current.getBoundingClientRect();
+      const badgeRect = badgeRef.current.getBoundingClientRect();
+      const parentCenterX = parentRect.left + parentRect.width / 2;
+      const parentCenterY = parentRect.top + parentRect.height / 2;
+
+      const mouseDist = Math.sqrt(
+        Math.pow(e.clientX - parentCenterX, 2) +
+          Math.pow(e.clientY - parentCenterY, 2)
+      );
+      const repelRadius = 150;
+
+      if (mouseDist < repelRadius) {
+        const angle = Math.atan2(
+          badgeRect.top + badgeRect.height / 2 - e.clientY,
+          badgeRect.left + badgeRect.width / 2 - e.clientX
+        );
+        const distance = repelRadius - mouseDist;
+        const strength = Math.max(20, distance * 0.3);
+
+        targetPos.current = {
+          x: Math.cos(angle) * strength,
+          y: Math.sin(angle) * strength,
+        };
+      } else {
+        targetPos.current = { x: 0, y: 0 };
+      }
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, [parentRef]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPosition((prev) => ({
+        x: prev.x + (targetPos.current.x - prev.x) * 0.15,
+        y: prev.y + (targetPos.current.y - prev.y) * 0.15,
+      }));
+    }, 16);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <motion.div
+      ref={badgeRef}
+      initial={{ scale: 0.5, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      transition={{ delay: 0.5, duration: 0.6 }}
+      style={{
+        x: position.x,
+        y: position.y,
+      }}
+      className="absolute glass border border-border/60 px-4 py-2.5 shadow-lg rounded-lg whitespace-nowrap pointer-events-none"
+    >
+      <p className="font-serif text-xl font-light text-foreground leading-none">
+        {number}
+      </p>
+      <p className="font-sans text-[9px] tracking-[0.15em] uppercase text-muted-foreground mt-0.5">
+        {label}
+      </p>
+    </motion.div>
+  );
+}
+
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 28 },
   animate: { opacity: 1, y: 0 },
@@ -85,12 +168,14 @@ function TypedHeading() {
 }
 
 export function HeroSection() {
+  const profileRef = useRef<HTMLDivElement>(null);
+
   return (
     <>
       {/* ── Hero ────────────────────────────────────── */}
       <section
         id="home"
-        className="relative min-h-screen grid grid-cols-1 lg:grid-cols-2 overflow-hidden"
+        className="relative min-h-screen grid grid-cols-1 lg:grid-cols-2 overflow-visible"
       >
         {/* Left column */}
         <div className="relative z-10 flex flex-col justify-center px-6 sm:px-10 lg:px-16 pt-32 pb-16 lg:py-0">
@@ -180,10 +265,12 @@ export function HeroSection() {
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 1, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
-          className="relative hidden lg:flex items-center justify-center"
+          className="relative hidden lg:flex items-center justify-center overflow-visible"
         >
-          <div className="relative flex flex-col items-center gap-6">
-
+          <div
+            ref={profileRef}
+            className="relative flex flex-col items-center gap-6"
+          >
             {/* Portrait — contained card */}
             <div className="relative w-64 xl:w-72">
               {/* Decorative border offset */}
@@ -200,32 +287,43 @@ export function HeroSection() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-background/30 via-transparent to-transparent" />
               </div>
-
-              {/* GPA badge */}
-              <motion.div
-                animate={{ y: [0, -5, 0] }}
-                transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute -bottom-4 -left-6 glass border border-border/60 px-4 py-2.5 shadow-lg"
-              >
-                <p className="font-serif text-xl font-light text-foreground leading-none">3.94</p>
-                <p className="font-sans text-[9px] tracking-[0.15em] uppercase text-muted-foreground mt-0.5">GPA Average</p>
-              </motion.div>
-
-              {/* Projects badge */}
-              <motion.div
-                animate={{ y: [0, 5, 0] }}
-                transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
-                className="absolute -top-4 -right-6 glass border border-border/60 px-4 py-2.5 shadow-lg"
-              >
-                <p className="font-serif text-xl font-light text-foreground leading-none">8+</p>
-                <p className="font-sans text-[9px] tracking-[0.15em] uppercase text-muted-foreground mt-0.5">Projects Built</p>
-              </motion.div>
             </div>
 
             {/* Name label below photo */}
             <div className="text-center">
-              <p className="font-serif text-sm font-light text-foreground/70 tracking-wide">{siteConfig.name}</p>
-              <p className="font-sans text-[9px] tracking-[0.2em] uppercase text-muted-foreground mt-0.5">{siteConfig.location}</p>
+              <p className="font-serif text-sm font-light text-foreground/70 tracking-wide">
+                {siteConfig.name}
+              </p>
+              <p className="font-sans text-[9px] tracking-[0.2em] uppercase text-muted-foreground mt-0.5">
+                {siteConfig.location}
+              </p>
+            </div>
+
+            {/* GPA Badge - Top Left */}
+            <div className="absolute" style={{ top: '60px', left: '-100px' }}>
+              <FloatingBadge
+                number="3.94"
+                label="GPA Average"
+                parentRef={profileRef}
+              />
+            </div>
+
+            {/* Certifications Badge - Top Right */}
+            <div className="absolute" style={{ top: '60px', right: '-30px' }}>
+              <FloatingBadge
+                number="6"
+                label="Certifications"
+                parentRef={profileRef}
+              />
+            </div>
+
+            {/* Projects Badge - Bottom Left */}
+            <div className="absolute" style={{ bottom: '120px', left: '-120px' }}>
+              <FloatingBadge
+                number="4"
+                label="Projects Built"
+                parentRef={profileRef}
+              />
             </div>
           </div>
         </motion.div>
