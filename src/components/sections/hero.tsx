@@ -84,7 +84,7 @@ function FloatingBadge({
       <p className="font-serif text-xl font-light text-foreground leading-none">
         {number}
       </p>
-      <p className="font-sans text-[9px] tracking-[0.15em] uppercase text-muted-foreground mt-0.5">
+      <p className="font-sans text-[clamp(0.6875rem,0.55rem+0.55vw,0.8rem)] tracking-[0.15em] uppercase text-muted-foreground mt-0.5">
         {label}
       </p>
     </motion.div>
@@ -155,7 +155,7 @@ function TypedHeading() {
   return (
     <h1
       className="font-serif font-light text-foreground leading-tight mb-2"
-      style={{ fontSize: "clamp(2rem, 3.5vw, 3rem)", minHeight: "1.35em" }}
+      style={{ fontSize: "clamp(2.25rem, 1.8rem + 1.85vw, 2.7rem)", minHeight: "1.35em" }}
     >
       <em className="text-primary not-italic">{displayed}</em>
       {/* blinking cursor */}
@@ -295,7 +295,7 @@ export function HeroSection() {
               <p className="font-serif text-sm font-light text-foreground/70 tracking-wide">
                 {siteConfig.name}
               </p>
-              <p className="font-sans text-[9px] tracking-[0.2em] uppercase text-muted-foreground mt-0.5">
+              <p className="font-sans text-[clamp(0.6875rem,0.55rem+0.55vw,0.8rem)] tracking-[0.2em] uppercase text-muted-foreground mt-0.5">
                 {siteConfig.location}
               </p>
             </div>
@@ -337,7 +337,7 @@ export function HeroSection() {
           className="absolute bottom-8 left-6 sm:left-10 lg:left-16 flex items-center gap-3 text-muted-foreground"
         >
           <div className="w-10 h-px bg-border" />
-          <span className="font-sans text-[10px] tracking-[0.2em] uppercase">Scroll to explore</span>
+          <span className="font-sans text-[clamp(0.75rem,0.6rem+0.65vw,0.9rem)] tracking-[0.2em] uppercase">Scroll to explore</span>
         </motion.div>
       </section>
 

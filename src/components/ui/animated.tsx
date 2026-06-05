@@ -252,7 +252,7 @@ export function SectionHeading({
         className={cn(
           "mb-4",
           // give the title the right size
-          "[&>div:first-child]:text-[clamp(2.2rem,4vw,3.5rem)] [&>div:first-child]:leading-[1.05] [&>div:first-child]:mb-3"
+          "[&>div:first-child]:text-[clamp(2.25rem,1.8rem+1.85vw,2.7rem)] [&>div:first-child]:leading-[1.05] [&>div:first-child]:mb-3"
         )}
       />
 

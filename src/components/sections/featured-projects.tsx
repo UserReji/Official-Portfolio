@@ -38,13 +38,13 @@ export function FeaturedProjects() {
                 <span className="font-serif text-[8rem] font-light text-primary/10 select-none group-hover:scale-110 transition-transform duration-700">
                   01
                 </span>
-                <div className="absolute bottom-4 left-4 font-sans text-[10px] tracking-[0.2em] uppercase text-muted-foreground">
+                <div className="absolute bottom-4 left-4 font-sans text-[clamp(0.75rem,0.6rem+0.65vw,0.9rem)] tracking-[0.2em] uppercase text-muted-foreground">
                   {featured[0].category} · Featured
                 </div>
               </div>
               {/* Content side */}
               <div className="p-8 lg:p-12 flex flex-col justify-center">
-                <p className="font-sans text-[10px] tracking-[0.2em] uppercase text-primary mb-3">
+                <p className="font-sans text-[clamp(0.75rem,0.6rem+0.65vw,0.9rem)] tracking-[0.2em] uppercase text-primary mb-3">
                   {featured[0].duration} · Team of {featured[0].teamSize}
                 </p>
                 <h3 className="font-serif text-3xl lg:text-4xl font-light text-foreground mb-4">
@@ -55,7 +55,7 @@ export function FeaturedProjects() {
                 </p>
                 <div className="flex flex-wrap gap-2 mb-8">
                   {featured[0].technologies.slice(0, 5).map((t) => (
-                    <span key={t} className="font-sans text-[10px] tracking-[0.1em] uppercase text-muted-foreground border border-border/50 px-2.5 py-1">
+                    <span key={t} className="font-sans text-[clamp(0.75rem,0.6rem+0.65vw,0.9rem)] tracking-[0.1em] uppercase text-muted-foreground border border-border/50 px-2.5 py-1">
                       {t}
                     </span>
                   ))}
@@ -96,7 +96,7 @@ export function FeaturedProjects() {
                 0{i + 2}
               </div>
               <div className="p-8 flex flex-col h-full min-h-[260px]">
-                <p className="font-sans text-[10px] tracking-[0.2em] uppercase text-primary mb-3">
+                <p className="font-sans text-[clamp(0.75rem,0.6rem+0.65vw,0.9rem)] tracking-[0.2em] uppercase text-primary mb-3">
                   {project.category}
                 </p>
                 <h3 className="font-serif text-2xl font-light text-foreground mb-3 max-w-[85%]">
@@ -107,7 +107,7 @@ export function FeaturedProjects() {
                 </p>
                 <div className="flex flex-wrap gap-1.5 mb-6">
                   {project.technologies.slice(0, 4).map((t) => (
-                    <span key={t} className="font-sans text-[10px] tracking-[0.08em] uppercase text-muted-foreground bg-muted px-2 py-0.5">
+                    <span key={t} className="font-sans text-[clamp(0.75rem,0.6rem+0.65vw,0.9rem)] tracking-[0.08em] uppercase text-muted-foreground bg-muted px-2 py-0.5">
                       {t}
                     </span>
                   ))}

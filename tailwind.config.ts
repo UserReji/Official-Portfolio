@@ -61,6 +61,23 @@ const config: Config = {
         serif: ["var(--font-serif)", "Georgia", "serif"],
         mono: ["var(--font-jetbrains)", "monospace"],
       },
+      fontSize: {
+        // Fluid type scale: scales from current minimums up to ~1.2x at 1920px+.
+        // Floor values match Tailwind defaults so mobile layout is unchanged.
+        xs:   ["clamp(0.75rem, 0.6rem + 0.65vw, 0.9rem)",     { lineHeight: "1rem" }],
+        sm:   ["clamp(0.875rem, 0.7rem + 0.75vw, 1.05rem)",   { lineHeight: "1.25rem" }],
+        base: ["clamp(1rem, 0.8rem + 0.85vw, 1.2rem)",        { lineHeight: "1.5rem" }],
+        lg:   ["clamp(1.125rem, 0.9rem + 0.95vw, 1.35rem)",   { lineHeight: "1.75rem" }],
+        xl:   ["clamp(1.25rem, 1rem + 1.05vw, 1.5rem)",       { lineHeight: "1.75rem" }],
+        "2xl":["clamp(1.5rem, 1.2rem + 1.25vw, 1.8rem)",      { lineHeight: "2rem" }],
+        "3xl":["clamp(1.875rem, 1.5rem + 1.55vw, 2.25rem)",   { lineHeight: "2.25rem" }],
+        "4xl":["clamp(2.25rem, 1.8rem + 1.85vw, 2.7rem)",     { lineHeight: "2.5rem" }],
+        "5xl":["clamp(3rem, 2.4rem + 2.45vw, 3.6rem)",        { lineHeight: "1" }],
+        "6xl":["clamp(3.75rem, 3rem + 3.05vw, 4.5rem)",       { lineHeight: "1" }],
+        "7xl":["clamp(4.5rem, 3.6rem + 3.65vw, 5.4rem)",      { lineHeight: "1" }],
+        "8xl":["clamp(6rem, 4.8rem + 4.85vw, 7.2rem)",        { lineHeight: "1" }],
+        "9xl":["clamp(8rem, 6.4rem + 6.5vw, 9.6rem)",         { lineHeight: "1" }],
+      },
       animation: {
         "gradient-x": "gradient-x 15s ease infinite",
         "gradient-y": "gradient-y 15s ease infinite",

@@ -85,7 +85,7 @@ export function TimelineSection({ entries }: { entries: TimelineEntry[] }) {
                   {/* Always-visible header */}
                   <div className="flex items-center justify-between gap-2 px-4 pt-4 pb-3">
                     <div className="flex-1 min-w-0">
-                      <span className="font-sans text-[10px] tracking-[0.14em] uppercase text-muted-foreground block mb-1">
+                      <span className="font-sans text-[clamp(0.75rem,0.6rem+0.65vw,0.9rem)] tracking-[0.14em] uppercase text-muted-foreground block mb-1">
                         {formatDate(entry.startDate, { month: "short", year: "numeric" })}
                         {" — "}
                         {entry.endDate
@@ -96,7 +96,7 @@ export function TimelineSection({ entries }: { entries: TimelineEntry[] }) {
                         {entry.title}
                       </h3>
                       {entry.gpa && (
-                        <p className="font-sans text-[10px] text-muted-foreground mt-0.5 flex items-center gap-1">
+                        <p className="font-sans text-[clamp(0.75rem,0.6rem+0.65vw,0.9rem)] text-muted-foreground mt-0.5 flex items-center gap-1">
                           <TrendingUp className="h-2.5 w-2.5" />
                           {entry.gpa}
                         </p>

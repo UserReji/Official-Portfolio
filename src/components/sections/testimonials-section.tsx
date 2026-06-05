@@ -114,7 +114,7 @@ export function TestimonialsSection({ items: initial }: { items: Testimonial[] }
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block font-sans text-[10px] tracking-[0.15em] uppercase text-muted-foreground mb-2">
+                    <label className="block font-sans text-[clamp(0.75rem,0.6rem+0.65vw,0.9rem)] tracking-[0.15em] uppercase text-muted-foreground mb-2">
                       Your name <span className="text-primary">*</span>
                     </label>
                     <input
@@ -127,7 +127,7 @@ export function TestimonialsSection({ items: initial }: { items: Testimonial[] }
                     />
                   </div>
                   <div>
-                    <label className="block font-sans text-[10px] tracking-[0.15em] uppercase text-muted-foreground mb-2">
+                    <label className="block font-sans text-[clamp(0.75rem,0.6rem+0.65vw,0.9rem)] tracking-[0.15em] uppercase text-muted-foreground mb-2">
                       Role / Relation <span className="text-primary">*</span>
                     </label>
                     <input
@@ -142,7 +142,7 @@ export function TestimonialsSection({ items: initial }: { items: Testimonial[] }
                 </div>
 
                 <div>
-                  <label className="block font-sans text-[10px] tracking-[0.15em] uppercase text-muted-foreground mb-2">
+                  <label className="block font-sans text-[clamp(0.75rem,0.6rem+0.65vw,0.9rem)] tracking-[0.15em] uppercase text-muted-foreground mb-2">
                     Organization <span className="text-muted-foreground/50">(optional)</span>
                   </label>
                   <input
@@ -155,7 +155,7 @@ export function TestimonialsSection({ items: initial }: { items: Testimonial[] }
                 </div>
 
                 <div>
-                  <label className="block font-sans text-[10px] tracking-[0.15em] uppercase text-muted-foreground mb-2">
+                  <label className="block font-sans text-[clamp(0.75rem,0.6rem+0.65vw,0.9rem)] tracking-[0.15em] uppercase text-muted-foreground mb-2">
                     Your message <span className="text-primary">*</span>
                   </label>
                   <textarea

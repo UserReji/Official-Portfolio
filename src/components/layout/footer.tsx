@@ -31,7 +31,7 @@ export function Footer() {
 
           {/* Sitemap */}
           <div>
-            <h3 className="font-sans text-[10px] tracking-[0.2em] uppercase text-muted-foreground mb-5">Sitemap</h3>
+            <h3 className="font-sans text-[clamp(0.75rem,0.6rem+0.65vw,0.9rem)] tracking-[0.2em] uppercase text-muted-foreground mb-5">Sitemap</h3>
             <ul className="space-y-3">
               {["/about", "/projects", "/resume", "/certifications", "/contact"].map((href) => (
                 <li key={href}>
@@ -48,7 +48,7 @@ export function Footer() {
 
           {/* Connect */}
           <div>
-            <h3 className="font-sans text-[10px] tracking-[0.2em] uppercase text-muted-foreground mb-5">Connect</h3>
+            <h3 className="font-sans text-[clamp(0.75rem,0.6rem+0.65vw,0.9rem)] tracking-[0.2em] uppercase text-muted-foreground mb-5">Connect</h3>
             <ul className="space-y-3 mb-6">
               {siteConfig.social.map((item) => {
                 const Icon = iconMap[item.icon] ?? Mail;
