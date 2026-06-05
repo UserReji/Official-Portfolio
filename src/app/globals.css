@@ -8,22 +8,22 @@
   :root {
     /* Soft & elegant warm palette */
     --background: 36 33% 97%;        /* #F7F4EF cream */
-    --foreground: 20 14% 15%;        /* #2A2420 espresso */
+    --foreground: 20 18% 10%;        /* #1F1A16 deep coffee — darker for better contrast */
 
     --card: 36 50% 99%;              /* #FDFCFA warm white */
-    --card-foreground: 20 14% 15%;
+    --card-foreground: 20 18% 10%;
 
     --primary: 30 28% 48%;           /* #9E7E5A warm umber/gold */
     --primary-foreground: 36 33% 97%;
 
     --secondary: 36 20% 88%;         /* #E8E3DA stone */
-    --secondary-foreground: 20 14% 15%;
+    --secondary-foreground: 20 18% 10%;
 
     --muted: 36 20% 88%;
-    --muted-foreground: 25 10% 50%;  /* #8C8178 taupe */
+    --muted-foreground: 22 14% 32%;  /* #5C4F44 deeper umber — more readable */
 
     --accent: 30 40% 72%;            /* #D4B896 accent light */
-    --accent-foreground: 20 14% 15%;
+    --accent-foreground: 20 18% 10%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 36 33% 97%;
@@ -39,11 +39,12 @@
     --warm-white: #FDFCFA;
     --stone: #E8E3DA;
     --ash: #C9C3B8;
-    --taupe: #8C8178;
+    --taupe: #5C4F44;
     --umber: #5C5248;
-    --espresso: #2A2420;
+    --espresso: #1F1A16;
     --gold: #9E7E5A;
     --gold-light: #D4B896;
+    --grid-line: rgba(94, 76, 60, 0.08); /* grid line color for light mode */
     --font-serif: 'Cormorant Garamond', Georgia, serif;
   }
 
@@ -61,7 +62,7 @@
     --secondary-foreground: 36 33% 92%;
 
     --muted: 20 10% 18%;
-    --muted-foreground: 30 10% 55%;
+    --muted-foreground: 30 12% 70%;  /* brighter than before for better dark-mode contrast */
 
     --accent: 30 30% 35%;
     --accent-foreground: 36 33% 92%;
@@ -77,11 +78,12 @@
     --warm-white: #231F1C;
     --stone: #2E2924;
     --ash: #4A4440;
-    --taupe: #8C8178;
+    --taupe: #B0A89E;
     --umber: #B0A89E;
     --espresso: #F0EDE8;
     --gold: #C4A47A;
     --gold-light: #D4B896;
+    --grid-line: rgba(212, 184, 150, 0.06); /* grid line color for dark mode */
   }
 }
 
@@ -96,13 +98,26 @@
     @apply bg-background text-foreground antialiased;
     font-family: 'DM Sans', system-ui, sans-serif;
     font-feature-settings: "rlig" 1, "calt" 1;
+    font-size: 16px;        /* base size for the site */
+    line-height: 1.7;
     cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="%239E7E5A"/><circle cx="12" cy="12" r="8" fill="none" stroke="%239E7E5A" stroke-width="0.5" opacity="0.3"/></svg>') 12 12, auto;
+    /* Soft grid background — uses theme-aware line color */
+    background-image:
+      linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+    background-size: 48px 48px;
+    background-attachment: fixed;
   }
   h1, h2, h3, h4 {
     font-family: 'Cormorant Garamond', Georgia, serif;
-    font-weight: 300;
+    font-weight: 400;
     letter-spacing: -0.01em;
   }
+  h1 { font-size: clamp(2.25rem, 4vw, 3.5rem); line-height: 1.1; }
+  h2 { font-size: clamp(1.75rem, 3vw, 2.5rem);  line-height: 1.2; }
+  h3 { font-size: clamp(1.35rem, 2.2vw, 1.85rem); line-height: 1.3; }
+  h4 { font-size: clamp(1.1rem, 1.6vw, 1.35rem);  line-height: 1.4; }
+  p  { font-size: 0.95rem; }
 }
 
 @layer utilities {
@@ -131,11 +146,11 @@
     opacity: 0.6;
   }
 
-  /* Subtle grid texture */
+  /* Subtle grid texture (theme-aware via --grid-line) */
   .bg-grid {
     background-image:
-      linear-gradient(to right, rgba(158,126,90,0.06) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(158,126,90,0.06) 1px, transparent 1px);
+      linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
     background-size: 48px 48px;
   }
 
