@@ -78,6 +78,7 @@ export const certifications: Certification[] = [
     neverExpires: true,
   },
   {
+    slug: "simplilearn-machine-learning-python",
     title: "Machine Learning Using Python",
     issuer: "Simplilearn",
     issueDate: "2026-06-04",
