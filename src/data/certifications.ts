@@ -57,6 +57,7 @@ export const certifications: Certification[] = [
     issuer: "Simplilearn",
     issueDate: "2026-04-29",
     credentialId: "10166804",
+    credentialUrl: "https://simpli-web.app.link/e/Wo7IvXcsI3b",
     image: "/certifications/simplilearn.png",
     skills: ["Java", "Full Stack", "Web Development", "Backend", "Spring Boot"],
     description:
@@ -64,7 +65,19 @@ export const certifications: Certification[] = [
     neverExpires: true,
   },
   {
-    slug: "simplilearn-ml-python",
+    slug: "simplilearn-advanced-python",
+    title: "Advanced Python",
+    issuer: "Simplilearn",
+    issueDate: "2026-06-05",
+    credentialId: "10309291",
+    credentialUrl: "https://simpli-web.app.link/e/Ng66YT3mI3b",
+    image: "/certifications/AdvancePyCert.jpg",
+    skills: ["Python", "Advanced Python", "Programming", "Problem Solving"],
+    description:
+      "Certificate of Completion for the Advanced Python course on Simplilearn SkillUp, demonstrating initiative and commitment to deepening Python skills.",
+    neverExpires: true,
+  },
+  {
     title: "Machine Learning Using Python",
     issuer: "Simplilearn",
     issueDate: "2026-06-04",
