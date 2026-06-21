@@ -1,11 +1,23 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
-import { Send, CheckCircle2, XCircle, ChevronDown, ChevronUp } from "lucide-react";
+import { motion, AnimatePresence, useMotionValue, useTransform, PanInfo } from "framer-motion";
+import { Send, CheckCircle2, XCircle, ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from "lucide-react";
 import type { Testimonial } from "@/types";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 
 const EMPTY = { name: "", role: "", company: "", content: "" };
+const AUTO_ADVANCE_MS = 6000;
+const SWIPE_THRESHOLD = 60;
+
+function initials(name: string) {
+  return name
+    .split(/\s+/)
+    .map((n) => n[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+}
 
 export function TestimonialsSection({ items: initial }: { items: Testimonial[] }) {
   const [items, setItems] = useState<Testimonial[]>(initial);
@@ -14,7 +26,26 @@ export function TestimonialsSection({ items: initial }: { items: Testimonial[] }
   const [errorMsg, setErrorMsg] = useState("");
   const [showForm, setShowForm] = useState(false);
 
+  // Carousel state — index of the centered card
+  const [index, setIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const dragX = useMotionValue(0);
+
   useEffect(() => { setItems(initial); }, [initial]);
+
+  const total = items.length;
+  const go = useCallback((next: number) => {
+    setIndex(((next % total) + total) % total);
+  }, [total]);
+  const prev = useCallback(() => go(index - 1), [index, go]);
+  const next = useCallback(() => go(index + 1), [index, go]);
+
+  // Auto-advance
+  useEffect(() => {
+    if (paused || showForm || total < 2) return;
+    const t = setTimeout(next, AUTO_ADVANCE_MS);
+    return () => clearTimeout(t);
+  }, [index, paused, showForm, total, next]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -27,7 +58,6 @@ export function TestimonialsSection({ items: initial }: { items: Testimonial[] }
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
-
       const data = await res.json();
 
       if (res.status === 409) { setStatus("duplicate"); return; }
@@ -37,43 +67,173 @@ export function TestimonialsSection({ items: initial }: { items: Testimonial[] }
       setForm(EMPTY);
       setStatus("success");
       setShowForm(false);
+      // Move carousel to the newly-added testimonial
+      setIndex(total);
     } catch {
       setErrorMsg("Could not connect. Please try again.");
       setStatus("error");
     }
   }
 
-  return (
-    <div className="max-w-5xl mx-auto space-y-12">
+  // Build absolute-positioned cards: [-1, 0, +1] around current index
+  const offsets = [-1, 0, 1];
 
-      {/* Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <AnimatePresence initial={false}>
-          {items.map((t, i) => (
-            <motion.figure
-              key={t.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.5, delay: i * 0.06 }}
-              className="border border-border/50 bg-card p-8 hover:border-primary/30 transition-colors duration-300"
-            >
-              <div className="font-serif text-5xl text-primary/20 leading-none mb-4">&ldquo;</div>
-              <blockquote className="font-serif text-base font-light leading-relaxed text-foreground/80 italic mb-6">
-                {t.content}
-              </blockquote>
-              <figcaption className="pt-4 border-t border-border/40">
-                <div className="font-sans text-sm font-medium text-foreground">{t.name}</div>
-                <div className="font-sans text-xs text-muted-foreground mt-0.5">
-                  {t.role}{t.company ? ` · ${t.company}` : ""}
+  function onDragEnd(_: unknown, info: PanInfo) {
+    dragX.set(0);
+    if (info.offset.x < -SWIPE_THRESHOLD) next();
+    else if (info.offset.x > SWIPE_THRESHOLD) prev();
+  }
+
+  return (
+    <div className="max-w-6xl mx-auto space-y-12">
+
+      {/* ── 3D Carousel ────────────────────────────────────────────── */}
+      <div
+        className="relative"
+        onMouseEnter={() => setPaused(true)}
+        onMouseLeave={() => setPaused(false)}
+      >
+        {/* Edge fades — mask cards into the void */}
+        <div className="absolute inset-y-0 left-0 w-24 md:w-40 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
+        <div className="absolute inset-y-0 right-0 w-24 md:w-40 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
+
+        {/* Stage */}
+        <motion.div
+          drag="x"
+          dragConstraints={{ left: 0, right: 0 }}
+          dragElastic={0.15}
+          style={{ x: dragX }}
+          onDragEnd={onDragEnd}
+          className="relative h-[360px] md:h-[380px] flex items-center justify-center cursor-grab active:cursor-grabbing"
+        >
+          {offsets.map((offset) => {
+            const i = ((index + offset) % total + total) % total;
+            const item = items[i];
+            if (!item) return null;
+
+            const isCenter = offset === 0;
+            const distance = Math.abs(offset);
+
+            // 3D depth transforms
+            const xPercent = offset === 0 ? 0 : offset < 0 ? -68 : 68;
+            const rotateY = offset * -22;
+            const scale = isCenter ? 1 : 0.78 - distance * 0.04;
+            const opacity = isCenter ? 1 : 0.35 - distance * 0.05;
+            const z = isCenter ? 10 : -distance * 10;
+
+            return (
+              <motion.div
+                key={`${item.id}-${offset}`}
+                initial={false}
+                animate={{
+                  x: `${xPercent}%`,
+                  rotateY,
+                  scale,
+                  opacity: Math.max(opacity, 0),
+                  z,
+                }}
+                transition={{
+                  type: "spring",
+                  stiffness: 120,
+                  damping: 22,
+                  mass: 0.6,
+                }}
+                style={{ transformPerspective: 1200 }}
+                onClick={() => { if (!isCenter) go(index + offset); }}
+                className={`absolute w-full max-w-xl ${isCenter ? "z-20" : "z-10"}`}
+              >
+                <div
+                  className={`relative border bg-card/80 backdrop-blur-xl p-8 md:p-10 transition-colors duration-500 ${
+                    isCenter
+                      ? "border-primary/30 shadow-2xl shadow-primary/5"
+                      : "border-border/40 cursor-pointer hover:border-border"
+                  }`}
+                >
+                  {/* Massive open-quote watermark */}
+                  <div className="font-serif text-7xl text-primary/15 leading-none mb-2 select-none">
+                    &ldquo;
+                  </div>
+
+                  {/* Quote */}
+                  <blockquote
+                    className={`font-serif font-light italic leading-relaxed text-foreground/90 mb-8 transition-all duration-500 ${
+                      isCenter ? "text-lg md:text-xl line-clamp-5" : "text-sm line-clamp-3 text-muted-foreground"
+                    }`}
+                  >
+                    {item.content}
+                  </blockquote>
+
+                  {/* Attribution row */}
+                  <div className="flex items-center gap-4 pt-6 border-t border-border/40">
+                    {/* Avatar — initials in a glass circle */}
+                    <div
+                      className={`relative flex items-center justify-center rounded-full border border-primary/30 bg-background/70 backdrop-blur font-serif font-light text-primary transition-all duration-500 ${
+                        isCenter ? "h-12 w-12 text-base" : "h-9 w-9 text-xs"
+                      }`}
+                    >
+                      {initials(item.name)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div
+                        className={`font-sans font-medium text-foreground truncate transition-all ${
+                          isCenter ? "text-sm" : "text-xs"
+                        }`}
+                      >
+                        {item.name}
+                      </div>
+                      <div
+                        className={`font-sans text-muted-foreground truncate transition-all ${
+                          isCenter ? "text-xs" : "text-[10px]"
+                        }`}
+                      >
+                        {item.role}
+                        {item.company ? ` · ${item.company}` : ""}
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </figcaption>
-            </motion.figure>
-          ))}
-        </AnimatePresence>
+              </motion.div>
+            );
+          })}
+        </motion.div>
+
+        {/* Controls */}
+        {total > 1 && (
+          <div className="flex items-center justify-between mt-10 px-2">
+            <button
+              onClick={prev}
+              aria-label="Previous testimonial"
+              className="group inline-flex h-10 w-10 items-center justify-center border border-border text-muted-foreground hover:border-primary hover:text-primary transition-all duration-300"
+            >
+              <ChevronLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
+            </button>
+
+            {/* Dot indicators */}
+            <div className="flex items-center gap-2">
+              {items.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => go(i)}
+                  aria-label={`Go to testimonial ${i + 1}`}
+                  className={`h-px transition-all duration-500 ${
+                    i === index ? "w-10 bg-primary" : "w-6 bg-border hover:bg-muted-foreground"
+                  }`}
+                />
+              ))}
+            </div>
+
+            <button
+              onClick={next}
+              aria-label="Next testimonial"
+              className="group inline-flex h-10 w-10 items-center justify-center border border-border text-muted-foreground hover:border-primary hover:text-primary transition-all duration-300"
+            >
+              <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+            </button>
+          </div>
+        )}
       </div>
 
-      {/* Toggle */}
+      {/* ── Toggle (form trigger) ───────────────────────────────────── */}
       <div className="flex justify-center">
         {status === "success" ? (
           <motion.div
@@ -94,7 +254,7 @@ export function TestimonialsSection({ items: initial }: { items: Testimonial[] }
         )}
       </div>
 
-      {/* Form */}
+      {/* ── Form (unchanged behavior) ───────────────────────────────── */}
       <AnimatePresence>
         {showForm && (
           <motion.div

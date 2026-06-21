@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { HeroSection } from "@/components/sections/hero";
+import { ServicesBento } from "@/components/sections/services-bento";
 import { FeaturedProjects } from "@/components/sections/featured-projects";
 import { SkillsSection } from "@/components/sections/skills-section";
 import { TimelineSection } from "@/components/sections/timeline-section";
 import { TestimonialsSection } from "@/components/sections/testimonials-section";
+import { ContactCTA } from "@/components/sections/contact-cta";
 import { Section, SectionHeading } from "@/components/ui/animated";
 import { skillGroups } from "@/data/skills";
 import { timeline } from "@/data/timeline";
@@ -25,6 +27,7 @@ export default function HomePage() {
   return (
     <>
       <HeroSection />
+      <ServicesBento />
       <FeaturedProjects />
       <Section>
         <SectionHeading
@@ -62,6 +65,7 @@ export default function HomePage() {
         />
         <TestimonialsSection items={testimonials} />
       </Section>
+      <ContactCTA />
     </>
   );
 }
