@@ -3,6 +3,7 @@ import { DM_Sans, Cormorant_Garamond, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/layout/theme-provider";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
+import { CursorSpotlight } from "@/components/effects/cursor-spotlight";
 import { siteConfig } from "@/lib/site";
 import "./globals.css";
 
@@ -99,7 +100,7 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${dmSans.variable} ${cormorant.variable} ${jetbrains.variable}`}
     >
-      <body className="min-h-screen flex flex-col antialiased">
+      <body className="min-h-screen flex flex-col antialiased relative">
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -113,10 +114,12 @@ export default function RootLayout({
             Skip to main content
           </a>
           <Navbar />
-          <main id="main" className="flex-1">
+          <main id="main" className="flex-1 relative z-10">
             {children}
           </main>
           <Footer />
+          {/* Site-wide cursor spotlight — fixed under all content, never blocks clicks */}
+          <CursorSpotlight />
         </ThemeProvider>
       </body>
     </html>

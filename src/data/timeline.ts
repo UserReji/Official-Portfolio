@@ -158,4 +158,17 @@ export const timeline: TimelineEntry[] = [
     ],
     gpa: "Weighted Ave. 90% · Earned Units: 6",
   },
+  {
+    // Grand finale — detected by id prefix in TimelineSection for a centered,
+    // celebratory layout. Keep this entry LAST in the array.
+    id: "milestone-graduation-2026",
+    type: "achievement",
+    title: "Graduate of Batch 2026",
+    organization: "Holy Cross of Davao College",
+    location: "Davao City, Philippines",
+    startDate: "2026-06-26",
+    endDate: "2026-06-26",
+    description:
+      "Crossed the stage. Four years, one degree, countless late nights — and a whole lot of lessons that no syllabus could teach.",
+  },
 ];

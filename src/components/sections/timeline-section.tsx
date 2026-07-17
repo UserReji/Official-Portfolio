@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { Award, Briefcase, GraduationCap, Trophy, TrendingUp } from "lucide-react";
+import { Award, Briefcase, GraduationCap, Star, Trophy, TrendingUp } from "lucide-react";
 import type { TimelineEntry } from "@/types";
 import { formatDate } from "@/lib/utils";
 import { useState } from "react";
@@ -12,6 +12,11 @@ const iconMap = {
   achievement: Trophy,
   certification: Award,
 };
+
+/** True for entries that should be rendered as a grand, centered milestone card. */
+function isGraduationMilestone(entry: TimelineEntry): boolean {
+  return entry.id.startsWith("milestone-graduation");
+}
 
 function gradeColor(raw: string): string {
   const n = parseFloat(raw);
@@ -35,11 +40,16 @@ export function TimelineSection({ entries }: { entries: TimelineEntry[] }) {
 
   return (
     <div className="relative max-w-3xl mx-auto">
-      {/* Vertical line */}
-      <div className="absolute left-[18px] md:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-border/60 to-transparent md:-translate-x-px" />
+      {/* Vertical line — stronger middle so the thread doesn't disappear between cards */}
+      <div className="absolute left-[18px] md:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-border to-transparent md:-translate-x-px z-[1]" />
 
       <div className="space-y-4">
         {entries.map((entry, i) => {
+          // Grand, centered milestone card — full width, celebratory treatment.
+          if (isGraduationMilestone(entry)) {
+            return <GraduationCard key={entry.id} entry={entry} index={i} />;
+          }
+
           const Icon = iconMap[entry.type];
           const isLeft = i % 2 === 0;
           const isOpen = openId === entry.id;
@@ -160,5 +170,76 @@ export function TimelineSection({ entries }: { entries: TimelineEntry[] }) {
         })}
       </div>
     </div>
+  );
+}
+
+/**
+ * GraduationCard — grand, centered milestone layout used for the graduation
+ * entry. Breaks the alternating left/right pattern to feel like a culmination,
+ * with a larger star icon, accent ring, and serif headline.
+ */
+function GraduationCard({
+  entry,
+  index,
+}: {
+  entry: TimelineEntry;
+  index: number;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 24, scale: 0.97 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ duration: 0.7, delay: index * 0.04, ease: [0.22, 1, 0.36, 1] }}
+      className="relative flex flex-col items-center text-center pt-10 pb-4"
+    >
+      {/* Star icon — sits on the timeline line so the vertical thread isn't broken */}
+      <div className="absolute left-[18px] md:left-1/2 top-3 -translate-x-1/2 z-20">
+        <div className="relative flex h-10 w-10 items-center justify-center border-2 border-primary bg-background shadow-md ring-4 ring-background">
+          <Star className="h-4 w-4 text-primary" fill="currentColor" />
+          {/* Subtle outer glow that echoes the cursor spotlight treatment */}
+          <span
+            aria-hidden
+            className="absolute inset-0 -z-10 blur-md"
+            style={{
+              background:
+                "radial-gradient(circle, hsl(28 32% 32% / 0.35), transparent 70%)",
+            }}
+          />
+        </div>
+      </div>
+
+      {/* Date eyebrow — pl-14 (56px) clears the 40px icon + 16px breathing room on mobile */}
+      <span className="font-sans text-[clamp(0.75rem,0.6rem+0.65vw,0.9rem)] tracking-[0.2em] uppercase text-primary mb-3 pl-14 md:pl-0 mt-5">
+        {formatDate(entry.startDate, { day: "numeric", month: "long", year: "numeric" })}
+      </span>
+
+      {/* Headline */}
+      <h3 className="font-serif text-3xl md:text-4xl font-light text-foreground leading-tight max-w-xl pl-14 md:pl-0">
+        {entry.title}
+      </h3>
+
+      {/* Organization */}
+      {entry.organization && (
+        <p className="font-sans text-sm tracking-wide text-muted-foreground mt-2 pl-14 md:pl-0">
+          {entry.organization}
+          {entry.location ? ` · ${entry.location}` : ""}
+        </p>
+      )}
+
+      {/* Description — slightly larger than regular cards */}
+      {entry.description && (
+        <p className="font-serif text-base md:text-lg font-light italic text-foreground/80 mt-5 max-w-lg leading-relaxed pl-14 md:pl-0">
+          {entry.description}
+        </p>
+      )}
+
+      {/* Decorative accent line under the card */}
+      <div className="mt-8 flex items-center gap-3 text-primary/40 pl-14 md:pl-0">
+        <span className="h-px w-10 bg-primary/30" />
+        <span className="text-xs tracking-[0.3em] uppercase">End of Chapter</span>
+        <span className="h-px w-10 bg-primary/30" />
+      </div>
+    </motion.div>
   );
 }
