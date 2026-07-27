@@ -196,7 +196,7 @@ export function HeroSection() {
             {...fadeUp(0.42)}
             className="font-sans text-xs tracking-[0.18em] uppercase text-muted-foreground mb-8"
           >
-            IT Student &amp; Software Developer &nbsp;·&nbsp; Davao City, PH
+            IT Graduate &amp; Software Developer &nbsp;·&nbsp; Davao City, PH
           </motion.p>
 
           {/* Bio — conversational, matching about page tone */}
@@ -205,7 +205,7 @@ export function HeroSection() {
             className="space-y-4 mb-10 max-w-lg"
           >
             <p className="font-sans text-sm leading-relaxed text-muted-foreground">
-              I&apos;m a freshly graduated BSIT student from{" "}
+              I&apos;m a freshly graduated IT Graduate from{" "}
               <span className="text-foreground">Holy Cross of Davao College</span> with a
               genuine love for building things on the web — from clean, thoughtful interfaces
               to the backend logic that holds everything together.
