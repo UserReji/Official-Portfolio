@@ -205,7 +205,7 @@ export function HeroSection() {
             className="space-y-4 mb-10 max-w-lg"
           >
             <p className="font-sans text-sm leading-relaxed text-muted-foreground">
-              I&apos;m a freshly graduated IT Graduate from{" "}
+              I&apos;m a freshly IT Graduate from{" "}
               <span className="text-foreground">Holy Cross of Davao College</span> with a
               genuine love for building things on the web — from clean, thoughtful interfaces
               to the backend logic that holds everything together.
