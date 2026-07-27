@@ -1,13 +1,16 @@
 "use client";
 
-import { motion, AnimatePresence, useMotionValue, useTransform, PanInfo } from "framer-motion";
+import { motion, AnimatePresence, useMotionValue, useTransform, useTime, PanInfo } from "framer-motion";
 import { Send, CheckCircle2, XCircle, ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from "lucide-react";
 import type { Testimonial } from "@/types";
 import { useState, useEffect, useRef, useCallback } from "react";
 
 const EMPTY = { name: "", role: "", company: "", content: "" };
-const AUTO_ADVANCE_MS = 6000;
+const AUTO_ADVANCE_MS = 9000;
 const SWIPE_THRESHOLD = 60;
+// Slow, weighted ease — feels like a turntable, not a snap.
+const SLOW_EASE = [0.32, 0.72, 0, 1] as const;
+const TRANSITION_MS = 2400;
 
 function initials(name: string) {
   return name
@@ -28,17 +31,34 @@ export function TestimonialsSection({ items: initial }: { items: Testimonial[] }
 
   // Carousel state — index of the centered card
   const [index, setIndex] = useState(0);
+  const [direction, setDirection] = useState<1 | -1>(1);
   const [paused, setPaused] = useState(false);
   const dragX = useMotionValue(0);
+
+  // Perpetual drift — keeps the carousel breathing even when idle.
+  // useTime() is a monotonic ms-since-mount motion value from framer-motion;
+  // we transform it into a gentle sine wave for slow parallax sway.
+  // (Removed the earlier y-lift cos wave — its peak/trough deceleration
+  // was reading as a "teleport back down" snap to the eye.)
+  const time = useTime();
+  const stageSway = useTransform(
+    time,
+    (t) => {
+      const amp = paused || showForm ? 0.15 : 1;
+      return Math.sin(t / 1900) * 1.6 * amp; // ±1.6°
+    },
+    [paused, showForm]
+  );
 
   useEffect(() => { setItems(initial); }, [initial]);
 
   const total = items.length;
-  const go = useCallback((next: number) => {
+  const go = useCallback((next: number, dir: 1 | -1 = next > index || (next === 0 && index === total - 1) ? 1 : -1) => {
+    setDirection(dir);
     setIndex(((next % total) + total) % total);
-  }, [total]);
-  const prev = useCallback(() => go(index - 1), [index, go]);
-  const next = useCallback(() => go(index + 1), [index, go]);
+  }, [index]);
+  const prev = useCallback(() => go(index - 1, -1), [index, go]);
+  const next = useCallback(() => go(index + 1, 1), [index, go]);
 
   // Auto-advance
   useEffect(() => {
@@ -97,104 +117,137 @@ export function TestimonialsSection({ items: initial }: { items: Testimonial[] }
         <div className="absolute inset-y-0 left-0 w-24 md:w-40 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
         <div className="absolute inset-y-0 right-0 w-24 md:w-40 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
 
+        {/* Cycle progress bar — re-mounts on every index change so the
+            tween restarts; pauses by switching to the "frozen" branch when
+            the user hovers or the form is open. */}
+        {total > 1 && (
+          <div className="relative h-px w-full bg-border/40 overflow-hidden mb-6">
+            <motion.div
+              key={`progress-${index}-${paused}-${showForm}`}
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: 1 }}
+              transition={{
+                duration: paused || showForm ? 0 : AUTO_ADVANCE_MS / 1000,
+                ease: "linear",
+              }}
+              style={{ transformOrigin: "left center" }}
+              className="absolute inset-y-0 left-0 right-0 bg-primary"
+            />
+          </div>
+        )}
+
         {/* Stage */}
         <motion.div
           drag="x"
           dragConstraints={{ left: 0, right: 0 }}
           dragElastic={0.15}
-          style={{ x: dragX }}
+          style={{ x: dragX, rotateY: stageSway }}
           onDragEnd={onDragEnd}
           className="relative h-[360px] md:h-[380px] flex items-center justify-center cursor-grab active:cursor-grabbing"
         >
-          {offsets.map((offset) => {
-            const i = ((index + offset) % total + total) % total;
-            const item = items[i];
-            if (!item) return null;
+          <AnimatePresence initial={false} mode="popLayout" custom={direction}>
+            {offsets.map((offset) => {
+              const i = ((index + offset) % total + total) % total;
+              const item = items[i];
+              if (!item) return null;
 
-            const isCenter = offset === 0;
-            const distance = Math.abs(offset);
+              const isCenter = offset === 0;
+              const distance = Math.abs(offset);
 
-            // 3D depth transforms
-            const xPercent = offset === 0 ? 0 : offset < 0 ? -68 : 68;
-            const rotateY = offset * -22;
-            const scale = isCenter ? 1 : 0.78 - distance * 0.04;
-            const opacity = isCenter ? 1 : 0.35 - distance * 0.05;
-            const z = isCenter ? 10 : -distance * 10;
+              // 3D depth targets — kept visible (side cards stay 0.78 opacity
+              // so they read as real neighbors, not ghosts).
+              const xPercent = offset === 0 ? 0 : offset < 0 ? -42 : 42;
+              const rotateY = offset * -14;
+              const scale = isCenter ? 1 : 0.86 - distance * 0.02;
+              const opacity = isCenter ? 1 : 0.9 - distance * 0.03;
+              const z = isCenter ? 30 : 5 - distance * 2;
 
-            return (
-              <motion.div
-                key={`${item.id}-${offset}`}
-                initial={false}
-                animate={{
-                  x: `${xPercent}%`,
-                  rotateY,
-                  scale,
-                  opacity: Math.max(opacity, 0),
-                  z,
-                }}
-                transition={{
-                  type: "spring",
-                  stiffness: 120,
-                  damping: 22,
-                  mass: 0.6,
-                }}
-                style={{ transformPerspective: 1200 }}
-                onClick={() => { if (!isCenter) go(index + offset); }}
-                className={`absolute w-full max-w-xl ${isCenter ? "z-20" : "z-10"}`}
-              >
-                <div
-                  className={`relative border bg-card/80 backdrop-blur-xl p-8 md:p-10 transition-colors duration-500 ${
-                    isCenter
-                      ? "border-primary/30 shadow-2xl shadow-primary/5"
-                      : "border-border/40 cursor-pointer hover:border-border"
-                  }`}
+              // Direction-aware enter/exit — new card slides in from the
+              // leading edge while departing card slides out to the trailing
+              // edge, giving a continuous hand-off instead of a snap.
+              const offStageX = direction === 1 ? 110 : -110;
+
+              return (
+                <motion.div
+                  key={item.id}
+                  custom={direction}
+                  initial={{ x: `${offStageX}%`, opacity: 0, scale: 0.92, rotateY: direction * 14 }}
+                  animate={{
+                    x: `${xPercent}%`,
+                    rotateY,
+                    scale,
+                    opacity: Math.max(opacity, 0),
+                    z,
+                  }}
+                  exit={{ x: `${-offStageX}%`, opacity: 0, scale: 0.92, rotateY: direction * -14 }}
+                  transition={{
+                    x: { duration: TRANSITION_MS / 1000, ease: SLOW_EASE },
+                    rotateY: { duration: TRANSITION_MS / 1000, ease: SLOW_EASE },
+                    scale: { duration: TRANSITION_MS / 1000, ease: SLOW_EASE },
+                    opacity: { duration: 1.2, ease: SLOW_EASE },
+                    z: { duration: TRANSITION_MS / 1000, ease: SLOW_EASE },
+                  }}
+                  style={{
+                    transformPerspective: 1200,
+                    filter: isCenter ? "saturate(1)" : "saturate(0.92)",
+                  }}
+                  onClick={() => { if (!isCenter) go(index + offset); }}
+                  className={`absolute w-full max-w-xl ${isCenter ? "z-30" : "z-10"}`}
                 >
-                  {/* Massive open-quote watermark */}
-                  <div className="font-serif text-7xl text-primary/15 leading-none mb-2 select-none">
-                    &ldquo;
-                  </div>
-
-                  {/* Quote */}
-                  <blockquote
-                    className={`font-serif font-light italic leading-relaxed text-foreground/90 mb-8 transition-all duration-500 ${
-                      isCenter ? "text-lg md:text-xl line-clamp-5" : "text-sm line-clamp-3 text-muted-foreground"
+                  <div
+                    className={`relative border p-8 md:p-10 transition-colors duration-500 ${
+                      isCenter
+                        ? "border-primary/30 bg-card shadow-2xl shadow-primary/10"
+                        : "border-border/50 bg-card/95 cursor-pointer hover:border-border"
                     }`}
                   >
-                    {item.content}
-                  </blockquote>
+                    {/* Massive open-quote watermark */}
+                    <div className={`font-serif text-7xl leading-none mb-2 select-none transition-colors duration-500 ${isCenter ? "text-primary/20" : "text-primary/10"}`}>
+                      &ldquo;
+                    </div>
 
-                  {/* Attribution row */}
-                  <div className="flex items-center gap-4 pt-6 border-t border-border/40">
-                    {/* Avatar — initials in a glass circle */}
-                    <div
-                      className={`relative flex items-center justify-center rounded-full border border-primary/30 bg-background/70 backdrop-blur font-serif font-light text-primary transition-all duration-500 ${
-                        isCenter ? "h-12 w-12 text-base" : "h-9 w-9 text-xs"
+                    {/* Quote */}
+                    <blockquote
+                      className={`font-serif font-light italic leading-relaxed mb-8 transition-all duration-500 ${
+                        isCenter ? "text-lg md:text-xl line-clamp-5 text-foreground/95" : "text-sm line-clamp-3 text-foreground/70"
                       }`}
                     >
-                      {initials(item.name)}
-                    </div>
-                    <div className="flex-1 min-w-0">
+                      {item.content}
+                    </blockquote>
+
+                    {/* Attribution row */}
+                    <div className="flex items-center gap-4 pt-6 border-t border-border/40">
+                      {/* Avatar — initials in a glass circle */}
                       <div
-                        className={`font-sans font-medium text-foreground truncate transition-all ${
-                          isCenter ? "text-sm" : "text-xs"
+                        className={`relative flex items-center justify-center rounded-full border border-primary/30 bg-background font-serif font-light text-primary transition-all duration-500 ${
+                          isCenter ? "h-12 w-12 text-base" : "h-9 w-9 text-xs"
                         }`}
                       >
-                        {item.name}
+                        {initials(item.name)}
                       </div>
-                      <div
-                        className={`font-sans text-muted-foreground truncate transition-all ${
-                          isCenter ? "text-xs" : "text-[10px]"
-                        }`}
-                      >
-                        {item.role}
-                        {item.company ? ` · ${item.company}` : ""}
+                      <div className="flex-1 min-w-0">
+                        <div
+                          className={`font-sans font-medium text-foreground truncate transition-all ${
+                            isCenter ? "text-sm" : "text-xs"
+                          }`}
+                        >
+                          {item.name}
+                        </div>
+                        <div
+                          className={`font-sans text-muted-foreground truncate transition-all ${
+                            isCenter ? "text-xs" : "text-[10px]"
+                          }`}
+                        >
+                          {item.role}
+                          {item.company ? ` · ${item.company}` : ""}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </motion.div>
-            );
-          })}
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
         </motion.div>
 
         {/* Controls */}
