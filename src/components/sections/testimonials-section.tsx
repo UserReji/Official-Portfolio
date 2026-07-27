@@ -40,15 +40,19 @@ export function TestimonialsSection({ items: initial }: { items: Testimonial[] }
   // we transform it into a gentle sine wave for slow parallax sway.
   // (Removed the earlier y-lift cos wave — its peak/trough deceleration
   // was reading as a "teleport back down" snap to the eye.)
+  //
+  // useTransform only calls the mapping function on every frame — it does
+  // NOT re-subscribe when React state changes. So we read `paused` /
+  // `showForm` through a ref that's kept fresh on every render; otherwise
+  // the closure would capture the first-render values and stay frozen.
   const time = useTime();
-  const stageSway = useTransform(
-    time,
-    (t) => {
-      const amp = paused || showForm ? 0.15 : 1;
-      return Math.sin(t / 1900) * 1.6 * amp; // ±1.6°
-    },
-    [paused, showForm]
-  );
+  const swayStateRef = useRef({ paused, showForm });
+  swayStateRef.current = { paused, showForm };
+  const stageSway = useTransform(time, (t) => {
+    const { paused: isPaused, showForm: formOpen } = swayStateRef.current;
+    const amp = isPaused || formOpen ? 0.15 : 1;
+    return Math.sin(t / 1900) * 1.6 * amp; // ±1.6°
+  });
 
   useEffect(() => { setItems(initial); }, [initial]);
 
