@@ -50,10 +50,12 @@ export function TestimonialsSection({ items: initial }: { items: Testimonial[] }
   swayStateRef.current = { paused, showForm };
   const stageSway = useTransform(time, (t) => {
     const { paused: isPaused, showForm: formOpen } = swayStateRef.current;
-    const amp = isPaused || formOpen ? 0.15 : 1;
+    const amp = isPaused || formOpen ? 0 : 1;
     return Math.sin(t / 1900) * 1.6 * amp; // ±1.6°
   });
-
+  // Counter-rotation used to keep the centered card exactly at 0° rotateY
+  // even while the stage sways, preventing text resampling/blur.
+  const counterSway = useTransform(stageSway, (v) => -v);
   useEffect(() => { setItems(initial); }, [initial]);
 
   const total = items.length;
@@ -164,7 +166,7 @@ export function TestimonialsSection({ items: initial }: { items: Testimonial[] }
               const rotateY = offset * -14;
               const scale = isCenter ? 1 : 0.86 - distance * 0.02;
               const opacity = isCenter ? 1 : 0.9 - distance * 0.03;
-              const z = isCenter ? 30 : 5 - distance * 2;
+              const z = isCenter ? 0 : -40;
 
               // Direction-aware enter/exit — new card slides in from the
               // leading edge while departing card slides out to the trailing
@@ -193,7 +195,7 @@ export function TestimonialsSection({ items: initial }: { items: Testimonial[] }
                   }}
                   style={{
                     transformPerspective: 1200,
-                    filter: isCenter ? "saturate(1)" : "saturate(0.92)",
+                    ...(isCenter ? { rotateY: counterSway } : {}),
                   }}
                   onClick={() => { if (!isCenter) go(index + offset); }}
                   className={`absolute w-full max-w-xl ${isCenter ? "z-30" : "z-10"}`}
