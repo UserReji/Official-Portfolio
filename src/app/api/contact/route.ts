@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { isValidEmail } from "@/lib/utils";
 import { siteConfig } from "@/lib/site";
+import { Resend } from "resend";
 import { supabaseFetch, isSupabaseConfigured } from "@/lib/supabase-server";
 
 const schema = z.object({
@@ -64,26 +65,20 @@ export async function POST(req: Request) {
     });
   }
 
-  // Optional: Resend integration
+  // Resend integration via SDK
   try {
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
-      },
-      body: JSON.stringify({
-        from: process.env.CONTACT_FROM_EMAIL || "Portfolio <onboarding@resend.dev>",
-        to: [to],
-        reply_to: email,
-        subject: `[Portfolio] ${subject}`,
-        text: `From: ${name} <${email}>\n\n${message}`,
-      }),
+    const resend = new Resend(process.env.RESEND_API_KEY!);
+
+    const { data, error } = await resend.emails.send({
+      from: process.env.CONTACT_FROM_EMAIL || "Portfolio <onboarding@resend.dev>",
+      to: [to],
+      replyTo: email,
+      subject: `[Portfolio] ${subject}`,
+      text: `From: ${name} <${email}>\n\n${message}`,
     });
 
-    if (!res.ok) {
-      const err = await res.text();
-      console.error("[contact] resend failed:", err);
+    if (error) {
+      console.error("[contact] resend failed:", error);
       return NextResponse.json(
         { error: "Failed to send email" },
         { status: 502 }
